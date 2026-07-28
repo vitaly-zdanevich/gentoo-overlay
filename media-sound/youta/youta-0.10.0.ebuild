@@ -34,7 +34,7 @@ IUSE="
 	+funkwhale +generic-ytdlp google-drive +gpm gpodder +invidious jack +jamendo keyring
 	lastfm librivox +litres +local +mpv native odysee +peertube pipewire
 	podcast-index pulseaudio +radio +rss rumble +rutube +soundcloud +soundstream
-	sponsorblock sqlite ssh telegram test +thumbnails torrent +tracker-music +tui +vimeo vk
+	sponsorblock sqlite ssh telegram test +images torrent +tracker-music +tui +vimeo vk
 	waveform webdav wikidata wikimedia yandex-disk yandex-music +youtube-music
 	+youtube-official +yt-dlp
 "
@@ -110,6 +110,9 @@ src_configure() {
 		$(usev google-drive)
 		$(usev gpm)
 		$(usev gpodder)
+		# v0.10.0 predates upstream's concise `images` feature name. Keep the
+		# user-facing USE flag stable while selecting the tagged source's alias.
+		$(usev images thumbnails)
 		$(usev invidious)
 		$(usev jack)
 		$(usev jamendo)
@@ -133,7 +136,6 @@ src_configure() {
 		$(usev sqlite sqlite-state)
 		$(usev ssh)
 		$(usev telegram)
-		$(usev thumbnails)
 		$(usev torrent)
 		$(usev tracker-music)
 		$(usev tui)

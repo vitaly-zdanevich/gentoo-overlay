@@ -28,6 +28,7 @@
 		<flag name="google-drive">Enable optional Google Drive source and backup support</flag>
 		<flag name="gpm">Enable safe, opportunistic GPM mouse input on Linux virtual consoles without linking libgpm</flag>
 		<flag name="gpodder">Enable the gpodder.net podcast adapter</flag>
+		<flag name="images">Build terminal artwork support</flag>
 		<flag name="invidious">Enable configurable Invidious instances for YouTube discovery</flag>
 		<flag name="jamendo">Enable Jamendo catalog search and track metadata through the official API using a runtime client ID</flag>
 		<flag name="keyring">Enable system-keyring-backed token references</flag>
@@ -50,7 +51,6 @@
 		<flag name="sqlite">Build the optional SQLite state backend; human-readable TOML state remains the runtime default</flag>
 		<flag name="ssh">Enable read-only SSH/SFTP media sources and optional backups</flag>
 		<flag name="telegram">Enable the experimental local Telegram client adapter</flag>
-		<flag name="thumbnails">Build optional terminal-image-protocol support</flag>
 		<flag name="torrent">Build experimental sequential torrent support</flag>
 		<flag name="tracker-music">Search tracker-module archives and play formats supported by FFmpeg with libopenmpt</flag>
 		<flag name="tui">Build the interactive terminal user interface</flag>
