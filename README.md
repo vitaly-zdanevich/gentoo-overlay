@@ -30,6 +30,17 @@ masters = gentoo
 auto-sync = yes
 ```
 
+## Youta
+
+[`media-sound/youta`](media-sound/youta) builds the low-resource
+[Youta](https://github.com/vitaly-zdanevich/youta) terminal YouTube audio
+player from its tagged source and release vendor archive. Provider and playback
+choices are exposed as USE flags.
+
+```sh
+emerge --ask media-sound/youta
+```
+
 ## Provenance
 
 The initial files were copied from immutable Git commits:
