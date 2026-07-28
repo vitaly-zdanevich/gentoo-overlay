@@ -57,6 +57,7 @@ REQUIRED_USE="
 RESTRICT="!test? ( test )"
 
 RDEPEND="
+	!media-sound/youta-bin
 	sqlite? ( !bundled-sqlite? ( dev-db/sqlite:3 ) )
 	archive-rar? ( app-arch/unrar )
 	archive-zip? ( app-arch/unzip )
