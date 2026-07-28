@@ -9,10 +9,15 @@
 		Youta-bin installs Youta's official prebuilt Linux release for amd64
 		or arm64. The binary includes upstream's fixed default provider set,
 		terminal UI, mpv playback backend, yt-dlp integration, tracker-module
-		support, and bundled SQLite. Install media-sound/youta instead when
-		build-time feature selection or a non-glibc target is required.
+		support, and the human-readable state backend. Terminal image rendering
+		is selected with the images USE flag; SQLite is not included. Install
+		media-sound/youta instead when granular build-time feature selection or
+		a non-glibc target is required.
 	</longdescription>
 	<use>
+		<flag name="images">
+			Install the release binary with terminal artwork support.
+		</flag>
 		<flag name="pipewire">
 			Request PipeWire audio-output support from media-video/mpv.
 		</flag>
