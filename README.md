@@ -39,8 +39,8 @@ choices are exposed as USE flags.
 
 [`media-sound/youta-bin`](media-sound/youta-bin) installs the official
 prebuilt amd64 or arm64 release. It has upstream's fixed default feature set
-and bundled SQLite; use the source package when you need compile-time feature
-selection.
+and uses the human-readable state backend without SQLite; use the source
+package when you need compile-time feature selection.
 
 ```sh
 emerge --ask media-sound/youta
