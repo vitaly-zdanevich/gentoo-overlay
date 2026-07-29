@@ -26,7 +26,7 @@
 		<flag name="funkwhale">Enable configurable Funkwhale instances</flag>
 		<flag name="generic-ytdlp">Accept direct URLs supported by installed yt-dlp extractors</flag>
 		<flag name="google-drive">Enable optional Google Drive source and backup support</flag>
-		<flag name="gpm">Enable safe, opportunistic GPM mouse input on Linux virtual consoles without linking libgpm</flag>
+		<flag name="gpm">Enable physical mouse input on Linux virtual consoles through a running GPM daemon without linking libgpm</flag>
 		<flag name="gpodder">Enable the gpodder.net podcast adapter</flag>
 		<flag name="images">Build terminal artwork support</flag>
 		<flag name="invidious">Enable configurable Invidious instances for YouTube discovery</flag>
