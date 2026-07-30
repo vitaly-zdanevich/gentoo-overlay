@@ -12,6 +12,7 @@
 		progress in one TUI.
 	</longdescription>
 	<use>
+		<flag name="acoustid">Identify selected local audio through Chromaprint and the AcoustID web service</flag>
 		<flag name="archive-rar">Index supported RAR audio archives through an external unpacker</flag>
 		<flag name="archive-zip">Index supported ZIP audio archives</flag>
 		<flag name="archive-org">Enable the Internet Archive adapter</flag>
