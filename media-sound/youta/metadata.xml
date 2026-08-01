@@ -43,6 +43,7 @@
 		<flag name="peertube">Enable configurable PeerTube instances</flag>
 		<flag name="pipewire">Enable mpv playback through PipeWire</flag>
 		<flag name="podcast-index">Enable Podcast Index catalog search</flag>
+		<flag name="qr">Build offline QR-code rendering for exact selected YouTube videos</flag>
 		<flag name="radio">Enable the account-free static online-radio catalogue and direct live streams</flag>
 		<flag name="rumble">Enable the experimental Rumble adapter</flag>
 		<flag name="rutube">Enable direct RuTube URLs through yt-dlp</flag>

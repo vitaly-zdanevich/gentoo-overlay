@@ -10,13 +10,16 @@
 		or arm64. The binary includes upstream's fixed default provider set,
 		terminal UI, mpv playback backend, yt-dlp integration, tracker-module
 		support, and the human-readable state backend. Terminal image rendering
-		is selected with the images USE flag; SQLite is not included. Install
-		media-sound/youta instead when granular build-time feature selection or
-		a non-glibc target is required.
+		and offline QR codes are selected independently with the images and qr
+		USE flags; SQLite is not included. Install media-sound/youta instead when
+		granular build-time feature selection or a non-glibc target is required.
 	</longdescription>
 	<use>
 		<flag name="images">
 			Install the release binary with terminal artwork support.
+		</flag>
+		<flag name="qr">
+			Install the release binary with offline QR-code support.
 		</flag>
 		<flag name="pipewire">
 			Request PipeWire audio-output support from media-video/mpv.
