@@ -6,11 +6,11 @@
 		<name>Vitaly Zdanevich</name>
 	</maintainer>
 	<longdescription lang="en">
-		Youta-bin installs Youta's official prebuilt Linux release for amd64
-		or arm64. The binary includes upstream's fixed default provider set,
-		terminal UI, mpv playback backend, yt-dlp integration, tracker-module
-		support, and the human-readable state backend. Terminal image rendering
-		and offline QR codes are selected independently with the images and qr
+		Youta-bin installs Youta's official prebuilt Linux release for amd64,
+		arm64, or SSE2-capable x86. The binary includes upstream's fixed default
+		provider set, terminal UI, mpv playback backend, yt-dlp integration,
+		tracker-module support, and the human-readable state backend. Terminal
+		image rendering and offline QR codes are selected independently with the images and qr
 		USE flags; SQLite is not included. Install media-sound/youta instead when
 		granular build-time feature selection or a non-glibc target is required.
 	</longdescription>
