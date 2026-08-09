@@ -33,7 +33,7 @@
 		<flag name="invidious">Enable configurable Invidious instances for YouTube discovery</flag>
 		<flag name="jamendo">Enable Jamendo catalog search and track metadata through the official API using a runtime client ID</flag>
 		<flag name="keyring">Enable system-keyring-backed token references</flag>
-		<flag name="lastfm">Enable optional Last.fm scrobbling</flag>
+		<flag name="lastfm">Fetch the fingerprinted recording artist's public Last.fm wiki biography after Wikidata enrichment</flag>
 		<flag name="librivox">Enable the LibriVox audiobook adapter</flag>
 		<flag name="litres">Enable LitRes podcast catalog metadata and bounded public-page resolution</flag>
 		<flag name="local">Browse local audio, video, and images in place, with explicit rename, system-trash, and move actions</flag>
