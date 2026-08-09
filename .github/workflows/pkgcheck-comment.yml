@@ -1,0 +1,200 @@
+# Post the report produced by pkgcheck's read-only pull-request job.
+#
+# workflow_run executes this file from main with permission to comment, while
+# never checking out or executing untrusted pull-request code.
+name: pkgcheck-comment
+
+on:
+  workflow_run:
+    workflows: [pkgcheck]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: write
+
+jobs:
+  comment:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion != 'cancelled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Locate the report
+        id: report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          matches=$(gh api --paginate \
+            "repos/${REPOSITORY}/actions/runs/${RUN_ID}/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.name == "pkgcheck-report" and (.expired | not)) | .id')
+          artifact_id=${matches%%$'\n'*}
+          if [ -n "${artifact_id}" ]; then
+            echo 'available=true' >> "${GITHUB_OUTPUT}"
+            echo "Found report artifact ${artifact_id}."
+          else
+            echo 'available=false' >> "${GITHUB_OUTPUT}"
+            echo 'The pkgcheck run produced no report artifact; nothing will be posted.'
+          fi
+
+      - name: Download the report
+        if: steps.report.outputs.available == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: pkgcheck-report
+          path: pkgcheck-report
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post the report
+        if: steps.report.outputs.available == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          set -euo pipefail
+          marker='<!-- pkgcheck-report -->'
+
+          # The commit-to-PR endpoint omits fork PRs, so match the head SHA
+          # against open pull requests instead. None of the artifact is run.
+          matches=$(gh api "repos/${REPOSITORY}/pulls?state=open&per_page=100" --paginate \
+            --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
+          pull_request=${matches%%$'\n'*}
+          [ -n "${pull_request}" ] || {
+            echo 'No open pull request points at this commit.'
+            exit 0
+          }
+          echo "Pull request #${pull_request}"
+
+          for report_file in commit packages report.txt new.txt; do
+            [ -f "pkgcheck-report/${report_file}" ] || {
+              echo "Missing report file: ${report_file}" >&2
+              exit 1
+            }
+          done
+          [ "$(wc -c < pkgcheck-report/commit)" -le 65 ] || {
+            echo 'Invalid commit field in report artifact.' >&2
+            exit 1
+          }
+          [ "$(wc -c < pkgcheck-report/packages)" -le 65536 ] || {
+            echo 'Package list in report artifact is too large.' >&2
+            exit 1
+          }
+          [ "$(wc -c < pkgcheck-report/report.txt)" -le 2097152 ] || {
+            echo 'Complete report artifact is too large.' >&2
+            exit 1
+          }
+          [ "$(wc -c < pkgcheck-report/new.txt)" -le 2097152 ] || {
+            echo 'New-findings artifact is too large.' >&2
+            exit 1
+          }
+
+          commit=$(cat pkgcheck-report/commit)
+          [[ "${commit}" =~ ^[0-9a-f]{7,64}$ ]] || {
+            echo 'Report artifact contains an invalid commit identifier.' >&2
+            exit 1
+          }
+          awk -F/ '
+            NF != 2 || $1 !~ /^[a-z0-9][a-z0-9+_.-]*$/ ||
+              $2 !~ /^[A-Za-z0-9+_][A-Za-z0-9+_.-]*$/ { exit 1 }
+          ' pkgcheck-report/packages || {
+            echo 'Report artifact contains an invalid package name.' >&2
+            exit 1
+          }
+
+          # Locate only a comment owned by this workflow's bot. A user-created
+          # marker must never become an edit target for the write-token job.
+          comment_id=$(gh api "repos/${REPOSITORY}/issues/${pull_request}/comments" --paginate \
+            --jq "map(select(.user.login == \"github-actions[bot]\" and (.body | contains(\"${marker}\")))) | .[0].id // empty")
+
+          package_count=$(wc -l < pkgcheck-report/packages)
+          [ "${package_count}" -gt 0 ] || {
+            echo 'No packages were touched.'
+            if [ -n "${comment_id}" ]; then
+              {
+                echo '## Pull request pkgcheck report'
+                echo
+                echo '*Status*: no package paths to scan'
+                echo
+                echo "${marker}"
+              } > body.md
+              gh api -X PATCH "repos/${REPOSITORY}/issues/comments/${comment_id}" \
+                -F body=@body.md > /dev/null
+            fi
+            exit 0
+          }
+
+          new_count=$(grep -c '^  ' pkgcheck-report/new.txt || true)
+          all_count=$(grep -c '^  ' pkgcheck-report/report.txt || true)
+          [ "${new_count}" -le "${all_count}" ] || {
+            echo 'New finding count exceeds the complete report count.' >&2
+            exit 1
+          }
+          existing_count=$((all_count - new_count))
+
+          plural() {
+            [ "$1" -eq 1 ] && echo "$2" || echo "$2s"
+          }
+
+          {
+            echo '## Pull request pkgcheck report'
+            echo
+            echo "*Newest commit scanned*: \`${commit}\`"
+            if [ "${package_count}" -le 10 ]; then
+              echo "*Packages scanned*: $(sed 's/^/`/; s/$/`/' pkgcheck-report/packages | paste -sd ' ' -)"
+            else
+              echo "*Packages scanned*: ${package_count}"
+            fi
+
+            if [ "${new_count}" -eq 0 ]; then
+              echo '*Status*: :white_check_mark: good'
+            else
+              echo '*Status*: :warning: **new issues**'
+              echo
+              if [ "${new_count}" -gt 10 ]; then
+                echo "<details><summary>New issues caused by PR (${new_count})</summary>"
+                echo
+                close='</details>'
+              else
+                echo 'New issues caused by PR:'
+                echo
+                close=''
+              fi
+
+              # Indenting every line cannot be escaped by backticks supplied in
+              # untrusted ebuild metadata, unlike a fixed-length fenced block.
+              if [ "$(wc -c < pkgcheck-report/new.txt)" -le 55000 ]; then
+                sed 's/^/    /' pkgcheck-report/new.txt
+              else
+                head -c 55000 pkgcheck-report/new.txt | head -n -1 | sed 's/^/    /'
+                echo '    [truncated; see the complete report]'
+              fi
+              [ -z "${close}" ] || {
+                echo
+                echo "${close}"
+              }
+            fi
+
+            if [ "${existing_count}" -gt 0 ]; then
+              echo
+              echo "There are ${existing_count} existing $(plural "${existing_count}" issue) in these packages."
+              echo "Check the [complete report](${RUN_URL}) to ensure none affect your change."
+            fi
+            echo
+            echo "${marker}"
+          } > body.md
+
+          # Keep one bot-owned comment per PR and edit it on every rerun.
+          if [ -n "${comment_id}" ]; then
+            gh api -X PATCH "repos/${REPOSITORY}/issues/comments/${comment_id}" \
+              -F body=@body.md > /dev/null
+          else
+            gh api "repos/${REPOSITORY}/issues/${pull_request}/comments" \
+              -F body=@body.md > /dev/null
+          fi
+          echo "Commented on #${pull_request}."

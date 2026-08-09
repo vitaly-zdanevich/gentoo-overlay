@@ -1,0 +1,263 @@
+name: emerge
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/**'
+      - 'metadata/**'
+      - 'profiles/**'
+
+# Ebuilds are executable code from the pull request. Keep this workflow on
+# ephemeral hosted runners, without secrets or repository write permission,
+# and never change its trigger to pull_request_target.
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: Scan changed packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    outputs:
+      targets: ${{ steps.packages.outputs.targets }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Find changed package targets
+        id: packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          PULL_REQUEST: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          declare -a packages=()
+          declare -A exact_package_directories=()
+          declare -A broad_package_directories=()
+
+          # Convert a changed path into either its exact ebuild atom or its
+          # package atom. Deleted ebuilds test the package versions that remain.
+          add_path() {
+            local path=$1
+            local category remainder package package_directory filename relative atom
+
+            [[ "${path}" == */*/* ]] || return 0
+            category=${path%%/*}
+            remainder=${path#*/}
+            package=${remainder%%/*}
+            [[ "${category}" =~ ^[a-z0-9][a-z0-9+_.-]*$ ]] || return 0
+            [[ "${package}" =~ ^[A-Za-z0-9+_][A-Za-z0-9+_.-]*$ ]] || return 0
+
+            package_directory="${category}/${package}"
+            local -a ebuilds=("${package_directory}"/*.ebuild)
+            [ "${#ebuilds[@]}" -gt 0 ] || return 0
+
+            relative=${path#"${package_directory}/"}
+            if [[ "${relative}" == *.ebuild && "${relative}" != */* && -f "${path}" ]]; then
+              filename=${relative%.ebuild}
+              atom="=${category}/${filename}"
+              exact_package_directories["${package_directory}"]=1
+            else
+              atom="${package_directory}"
+              if [[ "${relative}" != Manifest ]]; then
+                broad_package_directories["${package_directory}"]=1
+              fi
+            fi
+
+            [[ "${atom}" =~ ^=?[a-z0-9][a-z0-9+_.-]*/[A-Za-z0-9+_][A-Za-z0-9+_.-]*$ ]] || {
+              echo "Refusing invalid atom derived from changed path: ${path}" >&2
+              return 1
+            }
+            packages+=("${atom}")
+          }
+
+          mapfile -t changed_paths < <(
+            gh api --paginate \
+              "repos/${GH_REPOSITORY}/pulls/${PULL_REQUEST}/files?per_page=100" \
+              --jq '.[].filename'
+          )
+          for path in "${changed_paths[@]}"; do
+            add_path "${path}"
+          done
+
+          mapfile -t packages < <(printf '%s\n' "${packages[@]}" | sed '/^$/d' | sort -u)
+          # A version bump normally changes both an ebuild and its Manifest.
+          # Drop only that redundant package atom. Keep broad targets caused by
+          # patches, metadata, or deletions because they can affect another CPV.
+          declare -a filtered_packages=()
+          for atom in "${packages[@]}"; do
+            keep=true
+            if [[ "${atom}" != =* ]]; then
+              for exact_directory in "${!exact_package_directories[@]}"; do
+                if [[ "${atom}" == "${exact_directory}" ]]; then
+                  keep=false
+                  for broad_directory in "${!broad_package_directories[@]}"; do
+                    [[ "${atom}" != "${broad_directory}" ]] || keep=true
+                  done
+                fi
+              done
+            fi
+            if [[ "${keep}" == true ]]; then
+              filtered_packages+=("${atom}")
+            fi
+          done
+          packages=("${filtered_packages[@]}")
+          echo "Changed packages: $(printf '%s\n' "${packages[@]}" | jq -R . | jq -s .)"
+
+          # Add arm64 jobs only for packages with an arm64 or ~arm64 keyword.
+          declare -a arm64_packages=()
+          for atom in "${packages[@]}"; do
+            if [[ "${atom}" == =* ]]; then
+              atom_without_operator=${atom#=}
+              category=${atom_without_operator%%/*}
+              package_version=${atom_without_operator#*/}
+              ebuilds=("${category}"/*/"${package_version}.ebuild")
+            else
+              ebuilds=("${atom}"/*.ebuild)
+            fi
+
+            for ebuild in "${ebuilds[@]}"; do
+              [ -f "${ebuild}" ] || continue
+              keywords=$(sed -nE "/^[[:space:]]*KEYWORDS=(['\"])([^'\"]*)\1[[:space:]]*$/s//\2/p" "${ebuild}")
+              for keyword in ${keywords}; do
+                if [[ "${keyword}" == arm64 || "${keyword}" == '~arm64' ]]; then
+                  arm64_packages+=("${atom}")
+                  break 2
+                fi
+              done
+            done
+          done
+          mapfile -t arm64_packages < <(
+            printf '%s\n' "${arm64_packages[@]}" | sed '/^$/d' | sort -u
+          )
+          echo "arm64 packages: $(printf '%s\n' "${arm64_packages[@]}" | jq -R . | jq -s .)"
+
+          # Each target gets its own six-hour budget. amd64 packages cover both
+          # desktop init-system profiles; keyworded packages also build natively
+          # on GitHub's arm64 runner.
+          targets=$(
+            {
+              for package in "${packages[@]}"; do
+                printf '%s\t%s\t%s\n' "${package}" amd64-desktop-openrc ubuntu-latest
+                printf '%s\t%s\t%s\n' "${package}" amd64-desktop-systemd ubuntu-latest
+              done
+              for package in "${arm64_packages[@]}"; do
+                printf '%s\t%s\t%s\n' "${package}" arm64-desktop-systemd ubuntu-24.04-arm
+              done
+            } | jq -R 'select(length > 0) | split("\t") | {package: .[0], profile: .[1], runner: .[2]}' \
+              | jq -sc .
+          )
+          echo "Matrix targets: ${targets}"
+          echo "targets=${targets}" >> "${GITHUB_OUTPUT}"
+
+  build:
+    name: Emerge ${{ matrix.target.package }} (${{ matrix.target.profile }})
+    needs: scan
+    if: ${{ fromJSON(needs.scan.outputs.targets)[0] != null }}
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        target: ${{ fromJSON(needs.scan.outputs.targets) }}
+    runs-on: ${{ matrix.target.runner }}
+    timeout-minutes: 360
+    container:
+      image: gentoo/stage3:${{ matrix.target.profile }}
+    env:
+      OVERLAY_REPOSITORY_NAME: vitaly-zdanevich-overlay
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Sync the Gentoo repository
+        run: emerge-webrsync
+
+      - name: Checkout pull-request code
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Register the overlay
+        run: |
+          repository_name=$(< profiles/repo_name)
+          [[ "${repository_name}" == "${OVERLAY_REPOSITORY_NAME}" ]] || {
+            echo "Expected repository name ${OVERLAY_REPOSITORY_NAME}, got ${repository_name}." >&2
+            exit 1
+          }
+          mkdir -p /etc/portage/repos.conf
+          cat > /etc/portage/repos.conf/ci.conf <<EOF
+          [${OVERLAY_REPOSITORY_NAME}]
+          location = $(realpath .)
+          priority = 0
+          EOF
+
+      - name: Configure Portage
+        run: |
+          cat >> /etc/portage/make.conf <<EOF
+          MAKEOPTS="\${MAKEOPTS} -j$(nproc)"
+          ACCEPT_LICENSE="*"
+          FEATURES="\${FEATURES} binpkg-request-signature -ipc-sandbox -mount-sandbox -network-sandbox -pid-sandbox"
+          PORTAGE_ELOG_CLASSES="qa warn error"
+          PORTAGE_ELOG_SYSTEM="save"
+          FETCHCOMMAND="\${FETCHCOMMAND} --no-verbose"
+          RESUMECOMMAND="\${RESUMECOMMAND} --no-verbose"
+          EOF
+          cat /etc/portage/make.conf
+
+      - name: Validate and qualify the target atom
+        env:
+          RAW_TARGET: ${{ matrix.target.package }}
+        run: |
+          [[ "${RAW_TARGET}" =~ ^=?[a-z0-9][a-z0-9+_.-]*/[A-Za-z0-9+_][A-Za-z0-9+_.-]*$ ]] || {
+            echo "Invalid package atom: ${RAW_TARGET}" >&2
+            exit 1
+          }
+          echo "CI_TARGET=${RAW_TARGET}::${OVERLAY_REPOSITORY_NAME}" >> "${GITHUB_ENV}"
+
+      - name: Configure binary-package verification
+        run: |
+          grep -Rqs '^[[:space:]]*sync-uri[[:space:]]*=' /etc/portage/binrepos.conf || {
+            echo 'The stage3 image has no configured Gentoo binary-package host.' >&2
+            exit 1
+          }
+          getuto
+
+      - name: Configure distfiles permissions
+        run: |
+          install -dm775 -o root -g portage /var/cache/distfiles
+          install -dm775 -o portage -g portage /var/cache/distfiles/git3-src
+
+      - name: Install dependencies
+        run: |
+          emerge --onlydeps --getbinpkg --with-bdeps=y --jobs 1 --quiet --verbose \
+            --autounmask=y --autounmask-write=y --autounmask-continue=y \
+            "${CI_TARGET}"
+          rm -f /var/log/portage/elog/*
+
+      - name: Build and install the target from source
+        run: |
+          FEATURES="-getbinpkg" emerge --getbinpkg=n --usepkg=n --verbose \
+            --autounmask=y --autounmask-write=y --autounmask-continue=y \
+            "${CI_TARGET}"
+
+      - name: Check Portage elog
+        run: |
+          if compgen -G '/var/log/portage/elog/*' > /dev/null; then
+            echo 'Portage emitted QA, warning, or error messages:'
+            cat /var/log/portage/elog/*
+            exit 1
+          fi
+          echo 'No Portage elog messages found.'

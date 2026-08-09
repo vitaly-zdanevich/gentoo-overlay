@@ -74,6 +74,39 @@ No additional package was imported for dependency closure. The separately
 included `dev-cpp/fast_obj` ebuild is not an Organic Maps dependency; Organic
 Maps uses a vendored fast_obj source snapshot.
 
+## Continuous integration
+
+The overlay carries the package-validation layers used by gentoo-zh:
+
+- [`pkgcheck`](.github/workflows/pkgcheck.yml) runs for pull requests, pushes to
+  `main`, and manual dispatches. Pull requests also receive one updated comment
+  that distinguishes newly introduced findings from existing findings.
+- [`emerge`](.github/workflows/emerge-on-pr.yml) builds and installs every
+  changed package from source in current official Gentoo stage3 containers. It
+  tests amd64 desktop OpenRC and systemd profiles, plus the arm64 desktop
+  systemd profile for arm64-keyworded packages. Official signed Gentoo binary
+  packages are used only for dependencies.
+
+The stage3 container supplies the same current Gentoo userspace that a manually
+unpacked stage3 and chroot would provide, without duplicating extraction, mount,
+and cleanup logic. Each matrix entry is a separate GitHub Actions job with the
+maximum six-hour timeout, so a large package does not consume another package's
+budget.
+
+Ebuilds execute inside disposable, unprivileged hosted-runner containers. The
+emerge workflow therefore uses the `pull_request` event, a read-only token, no
+secrets, and checkouts without persisted credentials. It must not be changed to
+`pull_request_target`.
+
+Related documentation and precedents:
+
+- [Official Gentoo Docker images](https://github.com/gentoo/gentoo-docker-images)
+- [Gentoo binary package guide](https://wiki.gentoo.org/wiki/Binary_package_guide)
+- [pkgcheck GitHub Action](https://github.com/pkgcore/pkgcheck-action)
+- [gentoo-zh emerge validation](https://github.com/gentoo-zh/overlay/blob/dbcd200b31ae02761745a536b3a9e6f54a802883/.github/workflows/emerge-on-pr.yml)
+- [GitHub-hosted runner specifications](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
+- [GitHub Actions limits](https://docs.github.com/en/actions/reference/limits)
+
 ## Known inherited limitations
 
 - `dev-cpp/fast_obj-1.3` patches the build to create a shared library, but its

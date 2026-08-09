@@ -1,0 +1,137 @@
+name: pkgcheck
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Test report comparison helper
+        run: python3 -m unittest discover -s scripts/tests -v
+
+      - name: Run pkgcheck
+        uses: pkgcore/pkgcheck-action@v1
+        with:
+          args: --checks=-RedundantVersionCheck --keywords=-NonsolvableDepsInDev --exit=NonexistentDeps
+
+  # Scan only the packages the PR touches and leave the report for
+  # pkgcheck-comment to post. The validation job fails on NonexistentDeps
+  # alone, so warning-level findings need a separate visible report.
+  #
+  # This job must never hold a write token. pkgcheck evaluates ebuild metadata
+  # from the pull request; the comment is posted from a separate workflow that
+  # never checks out or executes the pull request's code.
+  report:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    container:
+      image: ghcr.io/pkgcore/pkgcheck:latest
+    defaults:
+      run:
+        # The image has no /bin/bash symlink, so select Bash explicitly.
+        shell: bash
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Collect the packages this PR touches
+        id: packages
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory '*'
+          # The checkout is the pull request merge ref: parent 1 is main and
+          # parent 2 is the PR head. Diffing the parents excludes commits that
+          # reached main after the pull request was opened.
+          git diff --name-only --diff-filter=d 'HEAD^1...HEAD^2' \
+            | awk -F/ 'NF > 2 && $1 ~ /^[a-z0-9][a-z0-9+_.-]*$/ && \
+                $2 ~ /^[A-Za-z0-9+_][A-Za-z0-9+_.-]*$/ { print $1"/"$2 }' \
+            | sort -u > touched.txt
+
+          # A path is a package only when its directory still contains ebuilds.
+          # This drops repository-level files and fully removed packages.
+          : > packages.txt
+          while read -r package; do
+            compgen -G "${package}/*.ebuild" > /dev/null || continue
+            echo "${package}" >> packages.txt
+          done < touched.txt
+          echo "count=$(wc -l < packages.txt)" >> "${GITHUB_OUTPUT}"
+          cat packages.txt
+
+      - name: Scan changed packages
+        if: steps.packages.outputs.count != '0'
+        run: |
+          set -euo pipefail
+          pmaint sync gentoo
+          head=$(git rev-parse HEAD)
+
+          scan() {
+            local output=$1
+            shift
+            pmaint regen --dir ~/.cache/pkgcheck/repos . > /dev/null
+            pkgcheck scan --checks=-RedundantVersionCheck --keywords=-NonsolvableDepsInDev \
+              "$@" > "${output}" 2>&1
+          }
+
+          mapfile -t packages < packages.txt
+          scan report.txt "${packages[@]}"
+
+          # Scan main too, so the report separates findings introduced by the
+          # pull request from findings already present in touched packages.
+          git checkout --quiet 'HEAD^1'
+          : > base-report.txt
+          mapfile -t base_packages < <(
+            for package in "${packages[@]}"; do
+              compgen -G "${package}/*.ebuild" > /dev/null && echo "${package}"
+            done
+          )
+          [ "${#base_packages[@]}" -eq 0 ] || scan base-report.txt "${base_packages[@]}"
+          git checkout --quiet "${head}"
+
+          python3 scripts/pkgcheck-new-findings.py base-report.txt report.txt > new.txt
+          echo '--- new findings ---'
+          cat new.txt
+          echo '--- complete report ---'
+          cat report.txt
+
+      - name: Stage the report
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p pkgcheck-report
+          # Store the PR head, rather than the generated merge commit.
+          git rev-parse --short 'HEAD^2' > pkgcheck-report/commit
+          cp packages.txt pkgcheck-report/packages 2>/dev/null || : > pkgcheck-report/packages
+          cp report.txt pkgcheck-report/report.txt 2>/dev/null || : > pkgcheck-report/report.txt
+          cp new.txt pkgcheck-report/new.txt 2>/dev/null || : > pkgcheck-report/new.txt
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pkgcheck-report
+          path: pkgcheck-report/
+          retention-days: 7
