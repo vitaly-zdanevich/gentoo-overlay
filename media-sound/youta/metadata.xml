@@ -6,10 +6,10 @@
 		<name>Vitaly Zdanevich</name>
 	</maintainer>
 	<longdescription lang="en">
-		Youta is a low-resource Rust terminal YouTube audio player and local
-		subscription manager. It can supervise mpv and yt-dlp while keeping
-		playback controls, queue state, local subscriptions, and listening
-		progress in one TUI.
+		Youta is a low-resource Rust media player and local subscription
+		manager. It can supervise mpv and yt-dlp while keeping playback
+		controls, queue state, local subscriptions, and listening progress in
+		one shared core used by its terminal and optional desktop interfaces.
 	</longdescription>
 	<use>
 		<flag name="acoustid">Identify selected local audio through Chromaprint and the AcoustID web service</flag>
@@ -29,6 +29,7 @@
 		<flag name="google-drive">Enable optional Google Drive source and backup support</flag>
 		<flag name="gpm">Enable physical mouse input on Linux virtual consoles through a running GPM daemon without linking libgpm</flag>
 		<flag name="gpodder">Enable the gpodder.net podcast adapter</flag>
+		<flag name="gui">Build and install the full-source desktop GUI in addition to the feature-selected terminal interface</flag>
 		<flag name="images">Build terminal artwork support</flag>
 		<flag name="invidious">Enable configurable Invidious instances for YouTube discovery</flag>
 		<flag name="jamendo">Enable Jamendo catalog search and track metadata through the official API using a runtime client ID</flag>

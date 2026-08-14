@@ -9,12 +9,19 @@
 		Youta-bin installs Youta's official prebuilt Linux release for amd64,
 		arm64, or SSE2-capable x86. The binary includes upstream's fixed default
 		provider set, terminal UI, mpv playback backend, yt-dlp integration,
-		tracker-module support, and the human-readable state backend. Terminal
-		image rendering and offline QR codes are selected independently with the images and qr
-		USE flags; SQLite is not included. Install media-sound/youta instead when
-		granular build-time feature selection or a non-glibc target is required.
+		tracker-module support, and the human-readable state backend. The gui USE
+		flag adds the desktop executable without replacing the TUI. Terminal image
+		rendering and offline QR codes are selected independently with the images
+		and qr USE flags; SQLite is not included. Install media-sound/youta instead
+		when granular build-time feature selection or a non-glibc target is required.
 	</longdescription>
 	<use>
+		<flag name="gui">
+			Install the official desktop GUI executable alongside the terminal executable.
+		</flag>
+		<flag name="gpm">
+			Install a terminal executable with physical mouse input on Linux virtual consoles and depend on the GPM daemon.
+		</flag>
 		<flag name="images">
 			Install the release binary with terminal artwork support.
 		</flag>
