@@ -13,6 +13,7 @@
 	</longdescription>
 	<use>
 		<flag name="acoustid">Identify selected local audio through Chromaprint and the AcoustID web service</flag>
+		<flag name="audio-quality">Analyze selected local audio files and folders for bounded spectral cutoff evidence through FFmpeg and RustFFT</flag>
 		<flag name="archive-rar">Index supported RAR audio archives through an external unpacker</flag>
 		<flag name="archive-zip">Index supported ZIP audio archives</flag>
 		<flag name="archive-org">Enable the Internet Archive adapter</flag>
