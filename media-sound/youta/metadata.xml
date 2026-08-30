@@ -22,6 +22,7 @@
 		<flag name="bbc-radio">Enable BBC podcast feeds and BBC Sounds URL routing through yt-dlp</flag>
 		<flag name="bilibili">Enable the experimental Bilibili adapter</flag>
 		<flag name="bundled-sqlite">Build the release with the rusqlite bundled SQLite library</flag>
+		<flag name="commons-upload">Upload reviewed YouTube, Yandex Music, and Apple Podcasts audio to Wikimedia Commons as Opus</flag>
 		<flag name="dearrow">Enable optional crowdsourced DeArrow titles and thumbnail timestamps</flag>
 		<flag name="discord">Enable optional Discord Rich Presence</flag>
 		<flag name="evernote">Enable the experimental one-way Evernote adapter</flag>
@@ -64,7 +65,7 @@
 		<flag name="waveform">Build the terminal waveform view</flag>
 		<flag name="webdav">Enable read-only WebDAV media sources and optional backups</flag>
 		<flag name="wikidata">Enable lazy Wikidata discovery and enrichment</flag>
-		<flag name="wikimedia">Enable Wikimedia Commons discovery and reviewed transfer support</flag>
+		<flag name="wikimedia">Compatibility alias for the commons-upload feature</flag>
 		<flag name="yandex-disk">Enable optional Yandex Disk source and backup support</flag>
 		<flag name="yandex-music">Enable the experimental Yandex Music adapter</flag>
 		<flag name="youtube-music">Enable independent YouTube Music catalog search through the installed yt-dlp</flag>
