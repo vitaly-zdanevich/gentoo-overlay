@@ -43,6 +43,7 @@
 		<flag name="local-archives">Browse ZIP and RAR files as read-only Local folders, using the external unrar helper for RAR data</flag>
 		<flag name="mpv">Build the invisible mpv JSON-IPC playback backend</flag>
 		<flag name="native">Build the experimental native playback backend</flag>
+		<flag name="nyan-cat">Build the optional rainbow Nyan Cat seek-bar renderer for terminal and desktop interfaces</flag>
 		<flag name="odysee">Enable the experimental Odysee adapter</flag>
 		<flag name="peertube">Enable configurable PeerTube instances</flag>
 		<flag name="pipewire">Enable mpv playback through PipeWire</flag>
