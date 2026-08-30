@@ -25,7 +25,7 @@
 		<flag name="commons-upload">Upload reviewed YouTube, Yandex Music, and Apple Podcasts audio to Wikimedia Commons as Opus</flag>
 		<flag name="dearrow">Enable optional crowdsourced DeArrow titles and thumbnail timestamps</flag>
 		<flag name="discord">Enable optional Discord Rich Presence</flag>
-		<flag name="evernote">Enable the experimental one-way Evernote adapter</flag>
+		<flag name="evernote">Save selected remote audio to Evernote as a reviewed Opus note attachment</flag>
 		<flag name="funkwhale">Enable configurable Funkwhale instances</flag>
 		<flag name="generic-ytdlp">Accept direct URLs supported by installed yt-dlp extractors</flag>
 		<flag name="google-drive">Enable optional Google Drive source and backup support</flag>
