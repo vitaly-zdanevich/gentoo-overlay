@@ -53,7 +53,7 @@
 		<flag name="rutube">Enable direct RuTube URLs through yt-dlp</flag>
 		<flag name="soundcloud">Enable SoundCloud URLs and optional official-API discovery</flag>
 		<flag name="soundstream">Enable bounded, read-only metadata resolution for public SoundStream playlist and clip links</flag>
-		<flag name="sponsorblock">Enable read-only SponsorBlock segment retrieval</flag>
+		<flag name="sponsorblock">Skip crowdsourced sponsor segments during YouTube playback through the read-only SponsorBlock API</flag>
 		<flag name="sqlite">Build the optional SQLite state backend; human-readable TOML state remains the runtime default</flag>
 		<flag name="ssh">Enable read-only SSH/SFTP media sources and optional backups</flag>
 		<flag name="summary">Summarize YouTube transcripts explicitly through the user's authenticated Codex CLI</flag>
