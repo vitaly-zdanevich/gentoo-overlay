@@ -17,6 +17,7 @@
 		<flag name="archive-rar">Index supported RAR audio archives through an external unpacker</flag>
 		<flag name="archive-zip">Index supported ZIP audio archives</flag>
 		<flag name="archive-org">Enable the Internet Archive adapter</flag>
+		<flag name="ascii-visualizer">Build five fullscreen audio-reactive ASCII visualizers using temporary mpv and FFmpeg metadata analysis</flag>
 		<flag name="apple-podcasts">Enable Apple Podcasts catalog discovery backed by podcast feeds</flag>
 		<flag name="bandcamp">Enable the experimental Bandcamp adapter</flag>
 		<flag name="bbc-radio">Enable BBC podcast feeds and BBC Sounds URL routing through yt-dlp</flag>
