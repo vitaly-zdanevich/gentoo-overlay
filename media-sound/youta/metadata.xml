@@ -70,6 +70,7 @@
 		<flag name="wikimedia">Compatibility alias for the commons-upload feature</flag>
 		<flag name="yandex-disk">Enable optional Yandex Disk source and backup support</flag>
 		<flag name="yandex-music">Enable the experimental Yandex Music adapter</flag>
+		<flag name="youtube-captions">Load, search, display, and seek through timestamped YouTube captions</flag>
 		<flag name="youtube-music">Enable independent YouTube Music catalog search through the installed yt-dlp</flag>
 		<flag name="youtube-official">Enable YouTube Data API v3 search and public metadata using a runtime API key</flag>
 		<flag name="yt-dlp">Use the external yt-dlp resolver/downloader</flag>
