@@ -91,7 +91,7 @@ SRC_URI="
 S="${WORKDIR}"
 
 # Youta and its selected Rust dependencies are statically included. The
-# release binaries use the human-readable state backend and omit SQLite.
+# Published release binaries use the human-readable state backend and omit SQLite.
 # These licenses match the corresponding source package.
 LICENSE="
 	0BSD Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD Boost-1.0 CC0-1.0

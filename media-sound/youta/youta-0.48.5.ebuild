@@ -3,7 +3,7 @@
 
 EAPI=8
 
-# Release builds use the upstream cargo-vendor archive rather than hundreds of
+# Tagged releases use the upstream cargo-vendor archive rather than hundreds of
 # individual crate distfiles. Cargo.lock remains authoritative.
 CRATES=""
 RUST_MIN_VER="1.95.0"
