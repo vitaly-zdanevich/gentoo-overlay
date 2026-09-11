@@ -52,6 +52,13 @@ Or install the prebuilt release:
 emerge --ask media-sound/youta-bin
 ```
 
+Starting with `youta-bin-0.53.3-r1`, Portage strips installed executables by
+default to reduce their size. To keep debugging information, use
+`FEATURES="splitdebug"` for separate debug files or `FEATURES="nostrip"` to
+preserve the original executable. This affects both the terminal and optional
+GUI executable; published downloads and their checksums remain unchanged.
+See Gentoo's [debugging and stripping documentation](https://wiki.gentoo.org/wiki/Project:Quality_Assurance/Backtraces#Stripping).
+
 ## Provenance
 
 The initial files were copied from immutable Git commits:
