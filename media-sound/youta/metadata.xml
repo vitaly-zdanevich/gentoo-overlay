@@ -67,6 +67,7 @@
 		<flag name="vimeo">Enable direct Vimeo URLs through yt-dlp</flag>
 		<flag name="vk">Enable the experimental VK adapter</flag>
 		<flag name="waveform">Build the terminal waveform view</flag>
+		<flag name="web-browser">Browse HTTP and HTTPS media directories in the Web tab and play direct audio and video links as audio</flag>
 		<flag name="webdav">Enable read-only WebDAV media sources and optional backups</flag>
 		<flag name="wikidata">Enable lazy Wikidata discovery and enrichment</flag>
 		<flag name="wikimedia">Compatibility alias for the commons-upload feature</flag>
