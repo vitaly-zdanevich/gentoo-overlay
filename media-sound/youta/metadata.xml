@@ -41,7 +41,7 @@
 		<flag name="lastfm">Fetch the fingerprinted recording artist's public Last.fm wiki biography after Wikidata enrichment</flag>
 		<flag name="librivox">Enable the LibriVox audiobook adapter</flag>
 		<flag name="litres">Enable LitRes podcast catalog metadata and bounded public-page resolution</flag>
-		<flag name="local">Browse local audio, video, and images in place, with explicit rename, system-trash, and move actions</flag>
+		<flag name="local">Browse local audio, video, and images in place, with explicit rename, system-trash, and move actions; read metadata for local and selected Web files</flag>
 		<flag name="local-archives">Browse ZIP and RAR files as read-only Local folders, using the external unrar helper for RAR data</flag>
 		<flag name="mpv">Build the invisible mpv JSON-IPC playback backend</flag>
 		<flag name="native">Build the experimental native playback backend</flag>
@@ -67,7 +67,7 @@
 		<flag name="vimeo">Enable direct Vimeo URLs through yt-dlp</flag>
 		<flag name="vk">Enable the experimental VK adapter</flag>
 		<flag name="waveform">Build the terminal waveform view</flag>
-		<flag name="web-browser">Browse HTTP and HTTPS media directories in the Web tab and play direct audio and video links as audio</flag>
+		<flag name="web-browser">Browse HTTP and HTTPS media directories in the Web tab and play direct audio and video links as audio; read selected-file metadata when local is enabled</flag>
 		<flag name="webdav">Enable read-only WebDAV media sources and optional backups</flag>
 		<flag name="wikidata">Enable lazy Wikidata discovery and enrichment</flag>
 		<flag name="wikimedia">Compatibility alias for the commons-upload feature</flag>
