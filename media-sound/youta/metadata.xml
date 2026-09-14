@@ -55,6 +55,7 @@
 		<flag name="radio">Enable the account-free static online-radio catalogue and direct live streams</flag>
 		<flag name="rumble">Enable the experimental Rumble adapter</flag>
 		<flag name="rutube">Enable direct RuTube URLs through yt-dlp</flag>
+		<flag name="s3-upload">Upload reviewed media to a chosen Amazon S3 bucket without overwriting existing objects</flag>
 		<flag name="soundcloud">Enable SoundCloud URLs and optional official-API discovery</flag>
 		<flag name="soundstream">Enable bounded, read-only metadata resolution for public SoundStream playlist and clip links</flag>
 		<flag name="sponsorblock">Skip crowdsourced sponsor segments during YouTube playback through the read-only SponsorBlock API</flag>
