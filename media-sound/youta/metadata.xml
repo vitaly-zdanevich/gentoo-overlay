@@ -17,6 +17,7 @@
 		<flag name="archive-rar">Index supported RAR audio archives through an external unpacker</flag>
 		<flag name="archive-zip">Index supported ZIP audio archives</flag>
 		<flag name="archive-org">Enable the Internet Archive adapter</flag>
+		<flag name="archive-upload">Upload reviewed YouTube audio or video to archive.org</flag>
 		<flag name="ascii-visualizer">Build the fullscreen CAVA-backed ASCII spectrum visualizer</flag>
 		<flag name="apple-podcasts">Enable Apple Podcasts catalog discovery backed by podcast feeds</flag>
 		<flag name="bandcamp">Enable the experimental Bandcamp adapter</flag>
