@@ -1,0 +1,39 @@
+Twig on Gentoo
+==============
+
+dev-vcs/twig builds the renderer and preload from the tagged Twig sources.
+It includes upstream's matching prebuilt Electron runtime because ::gentoo
+does not provide that Electron version. Native npm build tools are supplied
+by their locked upstream packages. This is not a source build of Chromium.
+dev-vcs/twig-bin installs the completed upstream Linux release instead.
+Both packages install /usr/bin/twig and cannot be installed together.
+
+All npm archives are declared in SRC_URI and verified by the Gentoo Manifest.
+The offline installer also checks the integrity values in package-lock.json.
+Lifecycle scripts and automatic Electron downloads are disabled. The source
+ebuild supports USE=test for upstream lint and local Git fixture tests. The
+obsolete test of a missing private-monorepo installer is excluded; the other
+foundation checks remain enabled.
+
+The source is marked UNLICENSED by upstream. Accept all-rights-reserved only
+after reviewing this restriction. The ebuild prohibits mirrors and binary
+redistribution. The bundled dependencies retain their own license notices.
+
+The launcher keeps upstream's isolated fontconfig cache, needed when the host
+fontconfig cache format is newer than the bundled Electron supports. Set
+TWIG_SYSTEM_FONTCONFIG=1 to opt out. Chromium's sandbox requires unprivileged
+user namespaces; the package does not install a setuid sandbox helper.
+
+Documentation:
+https://github.com/kitarasenka/twig/blob/twig-v0.8.5/README.md
+https://github.com/kitarasenka/twig/releases/tag/twig-v0.8.5
+https://www.electronjs.org/docs/latest/tutorial/sandbox
+https://docs.npmjs.com/cli/commands/npm-ci
+
+Maintainers can regenerate the npm SRC_URI block in a fresh source tree with:
+npm pkg delete devDependencies.electron devDependencies.electron-builder devDependencies.playwright
+npm --offline --ignore-scripts --no-audit --no-fund install --package-lock-only
+node /path/to/overlay/dev-vcs/twig/files/npm-offline.mjs uris package-lock.json
+
+This drops the unused release packagers and GUI smoke-test driver. npm prunes
+the existing lock graph without updating the retained dependency versions.

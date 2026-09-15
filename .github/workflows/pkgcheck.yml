@@ -29,6 +29,15 @@ jobs:
       - name: Test report comparison helper
         run: python3 -m unittest discover -s scripts/tests -v
 
+      - name: Set up Node.js for packaging helper tests
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Test offline npm installation
+        run: node --test scripts/tests/test_twig_npm_offline.mjs
+
       - name: Run pkgcheck
         uses: pkgcore/pkgcheck-action@v1
         with:

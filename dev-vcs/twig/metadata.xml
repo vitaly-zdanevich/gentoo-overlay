@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zdanevich.vitaly@ya.ru</email>
+		<name>Vitaly Zdanevich</name>
+	</maintainer>
+	<longdescription lang="en">
+		Twig is an Electron desktop Git client with a visual commit graph,
+		staging, history editing, automation pipelines and a command journal.
+		This package builds Twig's JavaScript from the tagged sources and
+		uses the matching upstream Electron runtime. The application's source
+		is available but upstream has not granted a redistribution license.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">kitarasenka/twig</remote-id>
+		<bugs-to>https://github.com/kitarasenka/twig/issues</bugs-to>
+	</upstream>
+</pkgmetadata>
