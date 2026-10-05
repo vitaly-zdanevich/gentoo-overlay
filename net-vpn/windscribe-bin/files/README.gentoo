@@ -1,0 +1,27 @@
+Windscribe for Gentoo
+====================
+
+This package installs Windscribe's official prebuilt amd64 Debian release. It
+extracts the application files without running Debian maintainer scripts; the
+helper account, service definitions, and Gentoo update marker are managed by
+Portage.
+
+The privileged windscribe-helper service is required for VPN connections. The
+application's main executable runs with the windscribe group so it can
+communicate with that helper. Enable the service for your init system after
+installing the package:
+
+  systemctl enable --now windscribe-helper
+
+  rc-update add windscribe-helper default
+  rc-service windscribe-helper start
+
+Use Portage to update the client:
+
+  emerge --ask --oneshot net-vpn/windscribe-bin
+
+The package marks the platform as Gentoo so Windscribe's updater will refuse
+to install Debian, RPM, or Arch packages outside Portage.
+
+Upstream documentation: https://windscribe.net/knowledge-base/articles/how-to-set-up-windscribe-on-linux
+Upstream releases: https://github.com/Windscribe/Desktop-App/releases

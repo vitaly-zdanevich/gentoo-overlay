@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zdanevich.vitaly@ya.ru</email>
+		<name>Vitaly Zdanevich</name>
+	</maintainer>
+	<longdescription lang="en">
+		Windscribe's official prebuilt Linux VPN desktop client, packaged for
+		Gentoo with Portage-managed files and helper service integration.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">Windscribe/Desktop-App</remote-id>
+	</upstream>
+</pkgmetadata>

@@ -1,0 +1,10 @@
+#!/sbin/openrc-run
+
+description="Windscribe helper service"
+command="/opt/windscribe/helper"
+command_background=true
+pidfile="/run/${RC_SVCNAME}.pid"
+
+depend() {
+	before net
+}
