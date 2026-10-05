@@ -9,8 +9,8 @@
 		Twig is an Electron desktop Git client with a visual commit graph,
 		staging, history editing, automation pipelines and a command journal.
 		This package builds Twig's JavaScript from the tagged sources and
-		uses the matching upstream Electron runtime. The application's source
-		is available but upstream has not granted a redistribution license.
+		uses the matching upstream Electron runtime. Releases after 0.8.5 use
+		the Functional Source License with an Apache 2.0 future license.
 	</longdescription>
 	<upstream>
 		<remote-id type="github">kitarasenka/twig</remote-id>
