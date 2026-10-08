@@ -24,6 +24,8 @@
 		<flag name="bbc-radio">Enable BBC podcast feeds and BBC Sounds URL routing through yt-dlp</flag>
 		<flag name="bilibili">Enable the experimental Bilibili adapter</flag>
 		<flag name="bundled-sqlite">Build the release with the rusqlite bundled SQLite library</flag>
+		<flag name="cache">Cache replayable audio in session RAM through the mpv playback backend</flag>
+		<flag name="cmd">Enable provider-specific command buttons and the foreground Local Bash prompt</flag>
 		<flag name="commons-upload">Upload reviewed YouTube, Yandex Music, and Apple Podcasts audio to Wikimedia Commons as Opus</flag>
 		<flag name="dearrow">Enable optional crowdsourced DeArrow titles and thumbnail timestamps</flag>
 		<flag name="discord">Enable optional Discord Rich Presence</flag>
@@ -66,6 +68,7 @@
 		<flag name="torrent">Build experimental sequential torrent support</flag>
 		<flag name="tracker-music">Search tracker-module archives and play formats supported by FFmpeg with libopenmpt</flag>
 		<flag name="tui">Build the interactive terminal user interface</flag>
+		<flag name="url-info">Look up website metadata and domain registration information on demand</flag>
 		<flag name="vimeo">Enable direct Vimeo URLs through yt-dlp</flag>
 		<flag name="vk">Enable the experimental VK adapter</flag>
 		<flag name="waveform">Build the terminal waveform view</flag>
