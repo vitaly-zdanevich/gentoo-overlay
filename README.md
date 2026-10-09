@@ -30,6 +30,22 @@ masters = gentoo
 auto-sync = yes
 ```
 
+## Reeknote
+
+[`app-doc/reeknote-bin`](app-doc/reeknote-bin) installs the official prebuilt
+[Reeknote](https://github.com/vitaly-zdanevich/reeknote) release for amd64 or
+arm64, including both `reeknote` and `rnsync`, without compiling Rust code.
+The binaries require glibc 2.39 or newer and cannot be installed alongside
+the [`app-doc/reeknote`](app-doc/reeknote) source package.
+
+```sh
+emerge --ask app-doc/reeknote-bin
+```
+
+Audio playback through mpv and image display in Kitty-compatible terminals
+remain optional. See the [Reeknote documentation](https://github.com/vitaly-zdanevich/reeknote#readme)
+for login and usage.
+
 ## Youta
 
 [`media-sound/youta`](media-sound/youta) builds the low-resource
