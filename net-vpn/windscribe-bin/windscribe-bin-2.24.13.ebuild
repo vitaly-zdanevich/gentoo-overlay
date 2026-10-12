@@ -98,4 +98,5 @@ pkg_postinst() {
 	elog "Enable it with systemd: systemctl enable --now windscribe-helper"
 	elog "Or with OpenRC: rc-update add windscribe-helper default && rc-service windscribe-helper start"
 	elog "Update this package through Portage; upstream self-updates are disabled."
+	elog "Note that on non-free plan you can use any WireGuard client through Windscribe."
 }
