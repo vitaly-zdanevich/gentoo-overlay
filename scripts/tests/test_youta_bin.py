@@ -55,6 +55,11 @@ class YoutaBinTest(unittest.TestCase):
 				self.assertNotIn('strip', output[0].split())
 				self.assertEqual(output[1], features)
 
+	def test_prebuilt_commands_have_bash_runtime_dependency(self):
+		"""All prebuilt variants include commands that invoke the Bash helper."""
+		dependencies = self.evaluate('printf "%s\\n" "${RDEPEND}"').split()
+		self.assertIn('app-shells/bash', dependencies)
+
 	def test_manual_source_is_pinned_to_the_binary_release(self):
 		"""Fetch the manual from the binary's tag under a versioned distfile name."""
 		tokens = self.evaluate('printf "%s\\n" "${SRC_URI}"').split()
