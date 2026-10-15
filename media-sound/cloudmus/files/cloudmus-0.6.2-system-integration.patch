@@ -1,0 +1,151 @@
+From: Vitaly Zdanevich <zdanevich.vitaly@ya.ru>
+Subject: [PATCH] Support system backend manifests and explicit desktop integrations
+
+Keep user manifests authoritative and allow distribution builds to disable
+automatically detected X11 and Wayland integrations. Test the installed
+manifest search with isolated XDG directories.
+
+--- a/fronts/qt/src/Rpc/BackendManifest.cpp
++++ b/fronts/qt/src/Rpc/BackendManifest.cpp
+@@ -109,6 +109,11 @@
+     const QString configHome = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
+     scanDir(QDir(configHome + QStringLiteral("/cloudmus/backends.d")), result, seenIds);
+
++	// Distribution packages install shared manifests in the XDG data paths.
++	// User configuration is scanned first so it continues to override them.
++	for (const QString& dataDir : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation))
++		scanDir(QDir(dataDir + QStringLiteral("/cloudmus/backends.d")), result, seenIds);
++
+ #ifdef Q_OS_WIN
+     scanDir(QDir(QCoreApplication::applicationDirPath() + QStringLiteral("/backends")), result, seenIds, true);
+ #endif
+--- a/fronts/qt/CMakeLists.txt
++++ b/fronts/qt/CMakeLists.txt
+@@ -517,12 +517,16 @@
+ # (xcb). Each is optional; without them, the system's KF6WindowSystem is
+ # loaded at runtime instead, which works only next to the Qt it was built
+ # against (not in the AppImage).
+-find_package(Qt6 QUIET OPTIONAL_COMPONENTS GuiPrivate)
+-if(NOT WIN32)
++option(CLOUDMUS_WAYLAND "Build native Wayland blur integration" ON)
++option(CLOUDMUS_X11 "Build native X11 blur and global hotkeys" ON)
++if(CLOUDMUS_WAYLAND)
++    find_package(Qt6 QUIET OPTIONAL_COMPONENTS GuiPrivate)
++endif()
++if(NOT WIN32 AND CLOUDMUS_WAYLAND)
+     pkg_check_modules(WAYLAND_CLIENT QUIET IMPORTED_TARGET wayland-client)
+     find_program(WAYLAND_SCANNER wayland-scanner)
+ endif()
+-if(TARGET Qt6::GuiPrivate AND WAYLAND_CLIENT_FOUND AND WAYLAND_SCANNER)
++if(CLOUDMUS_WAYLAND AND TARGET Qt6::GuiPrivate AND WAYLAND_CLIENT_FOUND AND WAYLAND_SCANNER)
+     set(BLUR_GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated_wayland)
+     # Protocol copies in third_party/: the distro's wayland-protocols is
+     # too old for ext-background-effect on the AppImage's Debian 11 base.
+@@ -548,10 +552,10 @@
+     target_link_libraries(cloudmus-ui PRIVATE Qt6::GuiPrivate PkgConfig::WAYLAND_CLIENT)
+     message(STATUS "Glass: Wayland blur protocols, built in")
+ endif()
+-if(NOT WIN32)
++if(NOT WIN32 AND CLOUDMUS_X11)
+     pkg_check_modules(XCB QUIET IMPORTED_TARGET xcb)
+ endif()
+-if(XCB_FOUND)
++if(CLOUDMUS_X11 AND XCB_FOUND)
+     target_compile_definitions(cloudmus-ui PRIVATE CLOUDMUS_BLUR_X11 CLOUDMUS_HOTKEYS_X11)
+     target_sources(cloudmus-ui PRIVATE src/Integration/GlobalHotkeysX11.cpp)
+     target_link_libraries(cloudmus-ui PRIVATE PkgConfig::XCB)
+@@ -638,6 +642,9 @@
+
+ # --- tests (QtTest): `ctest --test-dir build`, or run build/bin/cloudmus-qt-tests.
+ if(BUILD_TESTING)
++add_executable(cloudmus-backend-manifest-tests tests/BackendManifestTest.cpp)
++target_link_libraries(cloudmus-backend-manifest-tests PRIVATE cloudmus-core Qt6::Test)
++add_test(NAME cloudmus-backend-manifest-tests COMMAND cloudmus-backend-manifest-tests)
+ add_executable(cloudmus-qt-tests
+     tests/main.cpp
+     tests/FakeBackend.cpp
+--- /dev/null
++++ b/fronts/qt/tests/BackendManifestTest.cpp
+@@ -0,0 +1,82 @@
++#include <QCoreApplication>
++#include <QDir>
++#include <QFile>
++#include <QJsonArray>
++#include <QJsonDocument>
++#include <QJsonObject>
++#include <QTemporaryDir>
++#include <QTest>
++
++#include "BackendManifest.h"
++
++// Exercise installed backend discovery without touching a real user's files.
++class BackendManifestTest : public QObject {
++	Q_OBJECT
++
++private:
++	QTemporaryDir root;
++
++	void writeManifest(const QString& base, const QString& name)
++	{
++		const QString path = root.path() + base + QStringLiteral("/cloudmus/backends.d");
++		QVERIFY(QDir().mkpath(path));
++		QFile icon(path + QStringLiteral("/local.svg"));
++		QVERIFY(icon.open(QIODevice::WriteOnly));
++		icon.write("<svg/>");
++		QFile file(path + QStringLiteral("/local.json"));
++		QVERIFY(file.open(QIODevice::WriteOnly));
++		const QJsonObject manifest {
++			{ "id", "local-folder" }, { "name", name },
++			{ "argv", QJsonArray { "/usr/bin/python3.14", "-m", "cloudmus_backend_local" } },
++			{ "protocolVersion", "1.12" }, { "icon", "local.svg" }
++		};
++		file.write(QJsonDocument(manifest).toJson());
++	}
++
++private slots:
++	void init()
++	{
++		QVERIFY(root.isValid());
++		qputenv("XDG_CONFIG_HOME", (root.path() + "/config").toUtf8());
++		qputenv("XDG_DATA_HOME", (root.path() + "/data").toUtf8());
++		qputenv("XDG_DATA_DIRS", (root.path() + "/system").toUtf8());
++		qunsetenv("CLOUDMUS_DEV_BACKENDS");
++	}
++
++	void cleanup()
++	{
++		for (const auto& path : { "/config", "/data", "/system" })
++			QVERIFY(QDir(root.path() + path).removeRecursively());
++	}
++
++	void discoversSystemBackendAndRelativeIcon()
++	{
++		writeManifest("/system", "System backend");
++		const auto manifests = Rpc::discoverManifests();
++		QCOMPARE(manifests.size(), 1);
++		QCOMPARE(manifests.first().name, QStringLiteral("System backend"));
++		QCOMPARE(manifests.first().argv.first(), QStringLiteral("/usr/bin/python3.14"));
++		QCOMPARE(manifests.first().iconPath, root.path() + "/system/cloudmus/backends.d/local.svg");
++	}
++
++	void userConfigurationOverridesSystemBackend()
++	{
++		writeManifest("/system", "System backend");
++		writeManifest("/config", "User backend");
++		const auto manifests = Rpc::discoverManifests();
++		QCOMPARE(manifests.size(), 1);
++		QCOMPARE(manifests.first().name, QStringLiteral("User backend"));
++	}
++
++	void userDataOverridesSystemBackend()
++	{
++		writeManifest("/system", "System backend");
++		writeManifest("/data", "User data backend");
++		const auto manifests = Rpc::discoverManifests();
++		QCOMPARE(manifests.size(), 1);
++		QCOMPARE(manifests.first().name, QStringLiteral("User data backend"));
++	}
++};
++
++QTEST_GUILESS_MAIN(BackendManifestTest)
++#include "BackendManifestTest.moc"

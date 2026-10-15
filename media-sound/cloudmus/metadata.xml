@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zdanevich.vitaly@ya.ru</email>
+		<name>Vitaly Zdanevich</name>
+	</maintainer>
+	<use>
+		<flag name="local">Install the local music folder backend</flag>
+		<flag name="yandex-music">Install the Yandex Music backend</flag>
+		<flag name="youtube-music">Install the YouTube Music backend</flag>
+	</use>
+	<upstream>
+		<remote-id type="github">cloudmus/cloudmus</remote-id>
+	</upstream>
+</pkgmetadata>
