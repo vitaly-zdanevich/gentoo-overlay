@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zdanevich.vitaly@ya.ru</email>
+		<name>Vitaly Zdanevich</name>
+	</maintainer>
+	<use>
+		<flag name="X">Enable global keyboard shortcuts through <pkg>dev-libs/keybinder</pkg></flag>
+	</use>
+	<upstream>
+		<remote-id type="github">foobnix/foobnix</remote-id>
+	</upstream>
+</pkgmetadata>

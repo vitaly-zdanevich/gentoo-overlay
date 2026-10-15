@@ -1,0 +1,35 @@
+Use supported urllib, GStreamer and WebKitGTK APIs on current Gentoo.
+
+--- a/foobnix/dm/dm_dowloader.py
++++ b/foobnix/dm/dm_dowloader.py
+@@ -12,5 +12,5 @@
+ import threading
+ from foobnix.fc.fc import FC
+-from urllib.request import FancyURLopener
++from urllib.request import build_opener
+ from foobnix.util.time_utils import size2text
+ from foobnix.util.file_utils import get_file_extension
+@@ -45,3 +45,3 @@
+-        opener = FancyURLopener()
++        opener = build_opener()
+         remote = opener.open(bean.path)
+         remote_size = 0
+--- a/foobnix/gui/engine/gstreamer.py
++++ b/foobnix/gui/engine/gstreamer.py
+@@ -23,5 +23,5 @@
+ from foobnix.util.const import STATE_STOP, STATE_PLAY, STATE_PAUSE, FTYPE_RADIO
+
+-Gst.init("")
++Gst.init(None)
+
+
+--- a/foobnix/gui/service/vk_service.py
++++ b/foobnix/gui/service/vk_service.py
+@@ -10,5 +10,6 @@
+ import os
+ import gi
+-gi.require_version("WebKit2", "4.0")
++gi.require_version("WebKit2", "4.1")
++gi.require_version("Soup", "3.0")
+
+ import threading
