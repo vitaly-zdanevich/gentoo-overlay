@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zdanevich.vitaly@ya.ru</email>
+		<name>Vitaly Zdanevich</name>
+	</maintainer>
+	<use>
+		<flag name="deno">Install Deno for YouTube JavaScript challenge solving</flag>
+	</use>
+	<upstream>
+		<remote-id type="github">yt-dlp/yt-dlp</remote-id>
+		<remote-id type="pypi">yt-dlp</remote-id>
+	</upstream>
+</pkgmetadata>
