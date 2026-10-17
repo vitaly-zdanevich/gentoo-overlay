@@ -36,6 +36,7 @@
 		<flag name="gpm">Enable physical mouse input on Linux virtual consoles through a running GPM daemon without linking libgpm</flag>
 		<flag name="gpodder">Enable the gpodder.net podcast adapter</flag>
 		<flag name="gui">Build and install the full-source desktop GUI in addition to the feature-selected terminal interface</flag>
+		<flag name="hover">Highlight terminal controls and rows under the mouse pointer</flag>
 		<flag name="images">Build terminal artwork support</flag>
 		<flag name="invidious">Enable configurable Invidious instances for YouTube discovery</flag>
 		<flag name="jamendo">Enable Jamendo catalog search and track metadata through the official API using a runtime client ID</flag>
@@ -70,7 +71,7 @@
 		<flag name="tui">Build the interactive terminal user interface</flag>
 		<flag name="url-info">Look up website metadata and domain registration information on demand</flag>
 		<flag name="vimeo">Enable direct Vimeo URLs through yt-dlp</flag>
-		<flag name="vk">Enable the experimental VK adapter</flag>
+		<flag name="vk">Enable authenticated VK Music search, browsing, and playback</flag>
 		<flag name="waveform">Build the terminal waveform view</flag>
 		<flag name="web-browser">Browse HTTP and HTTPS media directories in the Web tab and play direct audio and video links as audio; read selected-file metadata when local is enabled</flag>
 		<flag name="webdav">Enable read-only WebDAV media sources and optional backups</flag>
