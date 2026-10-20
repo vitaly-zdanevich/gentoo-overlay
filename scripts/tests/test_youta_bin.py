@@ -60,6 +60,17 @@ class YoutaBinTest(unittest.TestCase):
 		dependencies = self.evaluate('printf "%s\\n" "${RDEPEND}"').split()
 		self.assertIn('app-shells/bash', dependencies)
 
+	def test_gui_requires_both_gtk_display_backends(self):
+		"""Satisfy the GUI's X11 and Wayland imports without burdening TUI installs."""
+		dependencies = self.evaluate('printf "%s\\n" "${RDEPEND}"')
+		gui = re.search(r'\bgui\?\s+\(([^()]*)\)', dependencies)
+		self.assertIsNotNone(gui)
+		self.assertIn('x11-libs/gtk+:3[X,wayland]', gui.group(1).split())
+		self.assertEqual(
+			[token for token in dependencies.split() if token.startswith('x11-libs/gtk+:')],
+			['x11-libs/gtk+:3[X,wayland]'],
+		)
+
 	def test_manual_source_is_pinned_to_the_binary_release(self):
 		"""Fetch the manual from the binary's tag under a versioned distfile name."""
 		tokens = self.evaluate('printf "%s\\n" "${SRC_URI}"').split()
