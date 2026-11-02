@@ -15,6 +15,7 @@ S="${WORKDIR}"
 LICENSE="all-rights-reserved"
 SLOT="0"
 KEYWORDS="-* ~amd64"
+IUSE="systemd"
 RESTRICT="bindist fetch mirror strip"
 REQUIRED_USE="elibc_glibc"
 
@@ -32,16 +33,15 @@ RDEPEND="
 	app-arch/tar
 	sys-apps/coreutils
 	sys-apps/kmod
-	sys-apps/util-linux
 	sys-devel/gcc:*[cxx]
 	>=sys-libs/glibc-2.17
-	sys-process/procps
 	virtual/zlib:=
 "
 
 QA_PREBUILT="opt/sentinelone/*"
-PROVIDES_EXCLUDE="/opt/sentinelone/lib/*"
-REQUIRES_EXCLUDE="libelf.so.0 libresolver.so"
+# Exclude bundled third-party sonames while retaining internal sonames so
+# Portage records a non-empty PROVIDES entry for /opt/sentinelone/lib/*.so.
+PROVIDES_EXCLUDE="libbpf.so.1 libelf.so.0"
 
 pkg_nofetch() {
 	einfo "Download ${A} from your SentinelOne management console"
@@ -59,13 +59,17 @@ src_prepare() {
 	# payload; strip them so directory modes match under both root and userpriv.
 	find opt/sentinelone -type d -exec chmod a-t {} + || die
 
-	# Provide a default SERVICE_TYPE in installation_params.json so sentinelctl
-	# works before pkg_postinst or the init script updates it.
+	# Mark bundled private shared libraries owner-executable up front so
+	# Portage's 80libraries check does not chmod +x them to 0711.
+	chmod 0700 opt/sentinelone/lib/*.so || die
+
+	# Write SERVICE_TYPE directly into installation_params.json; sentinelctl's
+	# set-service-type command aborts if SERVICE_TYPE is already present.
 	chmod u+w opt/sentinelone/configuration/installation_params.json || die
 	cat > opt/sentinelone/configuration/installation_params.json <<-EOF || die
 	{
 	    "PACKAGE_TYPE": "deb",
-	    "SERVICE_TYPE": "sysvinit"
+	    "SERVICE_TYPE": "$(usex systemd systemd sysvinit)"
 	}
 	EOF
 	chmod 0400 opt/sentinelone/configuration/installation_params.json || die
@@ -122,13 +126,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	if [[ -z ${ROOT} ]]; then
-		local service_type="sysvinit"
-		[[ -d /run/systemd/system ]] && service_type="systemd"
-		"${EROOT}"/opt/sentinelone/bin/sentinelctl control set-service-type "${service_type}" >/dev/null ||
-			ewarn "Failed to set SentinelOne service type to ${service_type}"
-	fi
-
 	if [[ -z ${REPLACING_VERSIONS} ]]; then
 		elog "Register SentinelAgent with your management console site token:"
 		elog "  sentinelctl management token set <SITE_TOKEN>"

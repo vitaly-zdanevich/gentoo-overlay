@@ -9,10 +9,6 @@ depend() {
 	use logger net
 }
 
-start_pre() {
-	"${agent_control}" control set-service-type sysvinit >/dev/null
-}
-
 start() {
 	ebegin "Starting SentinelOne Agent"
 	"${agent_control}" control start
