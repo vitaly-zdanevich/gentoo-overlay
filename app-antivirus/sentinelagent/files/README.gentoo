@@ -1,0 +1,25 @@
+SentinelAgent for Gentoo
+========================
+
+This package installs SentinelOne's official prebuilt amd64 Debian archive into
+/opt/sentinelone without running Debian maintainer scripts. The sentinelone
+user, group, file ownerships, and OpenRC/systemd service files are managed by
+Portage.
+
+Because SentinelOne does not publish unauthenticated download URLs, download
+the matching SentinelAgent_linux_x86_64_v<version>.deb installer from your
+SentinelOne management console and copy it into DISTDIR (typically
+/var/cache/distfiles) before emerging.
+
+After installation, register the agent with your site or group token:
+
+  sudo sentinelctl management token set <SITE_TOKEN>
+
+Then enable and start the service for your init system:
+
+  sudo rc-update add sentinelone default
+  sudo rc-service sentinelone start
+
+or on systemd:
+
+  sudo systemctl enable --now sentinelone

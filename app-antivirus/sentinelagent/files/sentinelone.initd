@@ -1,0 +1,26 @@
+#!/sbin/openrc-run
+
+description="SentinelOne Linux Agent"
+agent_control="/opt/sentinelone/bin/sentinelctl"
+procname="/opt/sentinelone/bin/sentinelone-watchdog"
+
+depend() {
+	need localmount
+	use logger net
+}
+
+start_pre() {
+	"${agent_control}" control set-service-type sysvinit >/dev/null
+}
+
+start() {
+	ebegin "Starting SentinelOne Agent"
+	"${agent_control}" control start
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping SentinelOne Agent"
+	"${agent_control}" control shutdown
+	eend $?
+}

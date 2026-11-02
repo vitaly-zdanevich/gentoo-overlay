@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zdanevich.vitaly@ya.ru</email>
+		<name>Vitaly Zdanevich</name>
+	</maintainer>
+	<longdescription lang="en">
+		SentinelOne Linux endpoint protection agent packaged from upstream's
+		official prebuilt amd64 Debian archive, with Portage-managed user
+		accounts and OpenRC/systemd service definitions.
+	</longdescription>
+</pkgmetadata>
