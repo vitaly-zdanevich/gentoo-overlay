@@ -37,7 +37,8 @@ src_prepare() {
 }
 
 src_install() {
-	cargo_src_install
+	# Avoid cargo install's user-facing PATH hint for Portage's staging directory.
+	dobin "$(cargo_target_dir)"/{reeknote,rnsync}
 	einstalldocs
 }
 
