@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""Stop the Cursor Agent CLI from leaving a blank row under its footer.
+"""Stop the Cursor Agent CLI from leaving blank rows under its footer.
 
 The bundled Ink renderer (log-update) ends every frame with a newline, so the
 hidden cursor always rests on an empty row below the UI.  This wraps the
 stream log-update writes to: each frame's trailing newline is held back, and
 the next frame's leading erase sequence is shortened by one row to match.
+
+When the output shrinks while it fills the screen (for example when the input
+box clears after sending a multi-line message), the terminal cannot scroll the
+transcript back down, so the freed rows would stay blank under the footer.
+The visible screen is then repainted from the tail of the output.
 
 Usage: cursor-agent-trim-bottom-row.py path/to/index.js
 Exit status: 0 patched or already patched, 2 renderer not found, 1 error.
@@ -33,15 +38,47 @@ WRAPPER = rb"""function __cursorTrimBottomRow(logUpdate) {
         return stream.write(chunk, ...rest);
       };
       const log = logUpdate.create(out, options);
-      const done = log.done;
-      log.done = () => {
+      const countLines = (s) => {
+        let n = 1;
+        for (let i = s.indexOf("\n"); i !== -1; i = s.indexOf("\n", i + 1)) n++;
+        return n;
+      };
+      const tail = (s, k) => {
+        let i = s.length;
+        while (k-- > 0) {
+          i = s.lastIndexOf("\n", i - 1);
+          if (i < 0) return s.split("\n");
+        }
+        return s.slice(i + 1).split("\n");
+      };
+      let length = 0;
+      let lines = 0;
+      const render = (output) => {
+        log(output);
+        if (output.length === length) return;
+        length = output.length;
+        const count = countLines(output);
+        const rows = stream.rows || 0;
+        if (count < lines && rows > 0 && count >= rows) {
+          stream.write("\x1b[H" + tail(output, rows).map((l) => "\x1b[2K" + l).join("\n"));
+          held = true;
+        }
+        lines = count;
+      };
+      render.clear = () => {
+        length = lines = 0;
+        return log.clear();
+      };
+      render.done = () => {
         if (held) {
           stream.write("\n");
           held = false;
         }
-        return done();
+        length = lines = 0;
+        return log.done();
       };
-      return log;
+      render.sync = log.sync;
+      return render;
     },
   });
 }
