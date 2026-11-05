@@ -5,9 +5,10 @@ The CLI reserves a row (plus a margin) above the prompt box for the
 "Thinking / Generating ... tokens" spinner, and keeps it as a blank
 placeholder while idle.  This injects a transform that Ink applies to the
 live frame only (never to the transcript): the spinner row is moved to the
-right end of the first footer line, and the reserved rows (including any
-"Tip:" line under the spinner) are dropped, so working and idle frames have
-the same height.  Frames it does not recognise are left untouched.
+right end of the footer line, a standalone "N tasks" headline is appended
+to that line's left part, and the reserved rows (including any "Tip:" line
+under the spinner) are dropped, so working and idle frames have the same
+height.  Frames it does not recognise are left untouched.
 
 Usage: cursor-agent-footer-spinner.py path/to/index.js
 Exit status: 0 patched or already patched, 2 renderer not found, 1 error.
@@ -68,9 +69,19 @@ TRANSFORM = rb"""function __cursorFooterSpinner(frame) {
     }
   }
   if (top < 1 || bottom + 1 >= lines.length) return frame;
+  const drop = new Set();
+  const room = (process.stdout.columns || 80) - 2;
+  let footer = bottom + 1;
+  let tasks = "";
+  if (footer + 1 < lines.length &&
+      /^\s*\d+ tasks?( \u00b7 Enter to view jobs)?$/.test(plain(lines[footer]))) {
+    tasks = "\x1b[2m \u00b7 \x1b[22m" + lines[footer].replace(/^ +/, "").trimEnd();
+    drop.add(footer);
+    footer++;
+  }
   let first = top;
   while (first > 0 && !blank(first - 1)) first--;
-  const drop = new Set();
+  let status = "";
   if (first === top) {
     drop.add(top - 1);
     if (top >= 2 && blank(top - 2)) drop.add(top - 2);
@@ -80,13 +91,16 @@ TRANSFORM = rb"""function __cursorFooterSpinner(frame) {
       if (/^\s*[\u2800-\u28ff]+\s+\S/.test(plain(lines[i]))) spinner = i;
     }
     if (spinner < 0) return frame;
-    const room = (process.stdout.columns || 80) - 2;
-    const status = fit(lines[spinner].replace(/^ +/, "").trimEnd(), Math.max(4, room - 4));
-    const footer = fit(lines[bottom + 1].trimEnd(), room - 2 - width(status));
-    const pad = Math.max(1, room - width(footer) - width(status));
-    lines[bottom + 1] = footer + " ".repeat(pad) + status;
+    status = fit(lines[spinner].replace(/^ +/, "").trimEnd(), Math.max(4, room - 4));
     for (let i = spinner; i < top; i++) drop.add(i);
     if (spinner === first && first >= 1) drop.add(first - 1);
+  }
+  if (status || tasks) {
+    const left = fit(lines[footer].trimEnd().replace(/ {3,}/g, "  ") + tasks,
+      status ? room - 2 - width(status) : room);
+    lines[footer] = status
+      ? left + " ".repeat(Math.max(1, room - width(left) - width(status))) + status
+      : left;
   }
   return lines.filter((_, i) => !drop.has(i)).join("\n");
 }
