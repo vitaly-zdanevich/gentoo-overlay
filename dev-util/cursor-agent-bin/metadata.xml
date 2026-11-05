@@ -1,18 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE pkgmetadata SYSTEM 'https://www.gentoo.org/dtd/metadata.dtd'>
 <pkgmetadata>
-	<maintainer type="person">
+	<maintainer type='person'>
 		<email>zdanevich.vitaly@ya.ru</email>
 		<name>Vitaly Zdanevich</name>
 	</maintainer>
-	<longdescription lang="en">
+	<longdescription lang='en'>
 		Cursor Agent CLI is an autonomous terminal-based coding agent from Cursor (Anysphere).
 		It inspects codebases, executes shell commands, and edits files autonomously from the CLI.
 	</longdescription>
 	<use>
-		<flag name="footer-spinner">Show the working spinner and token count at the right end of the footer line instead of in a reserved row above the prompt</flag>
-		<flag name="statusline">Install a one-line status line (session, model, context, directory, git branch) and use it when cli-config.json sets no statusLine</flag>
-		<flag name="trim-bottom-row">Patch the bundled Ink renderer so the terminal UI uses the bottom row instead of leaving it blank under the footer</flag>
+		<flag name='footer-spinner'>Show the working spinner and token count at the right end of the footer line instead of in a reserved row above the prompt</flag>
+		<flag name='statusline'>Install a one-line status line (session, model, context, directory, git branch) and use it when cli-config.json sets no statusLine</flag>
+		<flag name='trim-bottom-row'>Patch the bundled Ink renderer so the terminal UI uses the bottom row instead of leaving it blank under the footer</flag>
 	</use>
 	<upstream>
 		<bugs-to>https://forum.cursor.com/c/bug-report/6</bugs-to>
