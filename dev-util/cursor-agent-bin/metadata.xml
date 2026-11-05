@@ -11,6 +11,7 @@
 	</longdescription>
 	<use>
 		<flag name="footer-spinner">Show the working spinner and token count at the right end of the footer line instead of in a reserved row above the prompt</flag>
+		<flag name="statusline">Install a one-line status line (session, model, context, directory, git branch) and use it when cli-config.json sets no statusLine</flag>
 		<flag name="trim-bottom-row">Patch the bundled Ink renderer so the terminal UI uses the bottom row instead of leaving it blank under the footer</flag>
 	</use>
 	<upstream>

@@ -27,7 +27,7 @@ S="${WORKDIR}/dist-package"
 LICENSE="cursor"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
-IUSE="+footer-spinner +trim-bottom-row"
+IUSE="+footer-spinner +statusline +trim-bottom-row"
 RESTRICT="bindist mirror strip"
 
 RDEPEND="
@@ -36,13 +36,14 @@ RDEPEND="
 "
 BDEPEND="
 	footer-spinner? ( ${PYTHON_DEPS} )
+	statusline? ( ${PYTHON_DEPS} )
 	trim-bottom-row? ( ${PYTHON_DEPS} )
 "
 
 QA_PREBUILT="*"
 
 pkg_setup() {
-	if use footer-spinner || use trim-bottom-row; then
+	if use footer-spinner || use statusline || use trim-bottom-row; then
 		python-any-r1_pkg_setup
 	fi
 }
@@ -64,6 +65,11 @@ src_prepare() {
 		"${EPYTHON}" "${FILESDIR}"/cursor-agent-footer-spinner.py index.js ||
 			ewarn "footer-spinner: render loop not found in this release; leaving it unpatched"
 	fi
+	if use statusline; then
+		"${EPYTHON}" "${FILESDIR}"/cursor-agent-default-statusline.py . \
+			"${EPREFIX}"/opt/cursor-agent/statusline.mjs ||
+			ewarn "statusline: config lookup not found in this release; set statusLine in cli-config.json"
+	fi
 }
 
 src_install() {
@@ -76,6 +82,13 @@ src_install() {
 	fi
 	if [[ -f "${ED}/opt/cursor-agent/cursor-agent-worker-sea" ]]; then
 		pax-mark m "${ED}/opt/cursor-agent/cursor-agent-worker-sea"
+	fi
+
+	if use statusline; then
+		sed "1s|.*|#!${EPREFIX}/opt/cursor-agent/node|" "${FILESDIR}"/cursor-agent-statusline.mjs \
+			> "${T}"/statusline.mjs || die
+		exeinto /opt/cursor-agent
+		doexe "${T}"/statusline.mjs
 	fi
 
 	dosym -r /opt/cursor-agent/cursor-agent /usr/bin/cursor-agent
