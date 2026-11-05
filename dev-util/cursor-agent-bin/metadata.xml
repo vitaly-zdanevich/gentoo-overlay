@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zdanevich.vitaly@ya.ru</email>
+		<name>Vitaly Zdanevich</name>
+	</maintainer>
+	<longdescription lang="en">
+		Cursor Agent CLI is an autonomous terminal-based coding agent from Cursor (Anysphere).
+		It inspects codebases, executes shell commands, and edits files autonomously from the CLI.
+	</longdescription>
+	<upstream>
+		<bugs-to>https://github.com/getcursor/cursor/issues</bugs-to>
+		<doc>https://docs.cursor.com/</doc>
+	</upstream>
+</pkgmetadata>
