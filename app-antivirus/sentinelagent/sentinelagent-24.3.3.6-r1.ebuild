@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit systemd unpacker
+inherit linux-info systemd unpacker
 
 MY_PV="${PV//./_}"
 
@@ -42,6 +42,43 @@ QA_PREBUILT="opt/sentinelone/*"
 # Exclude bundled third-party sonames while retaining internal sonames so
 # Portage records a non-empty PROVIDES entry for /opt/sentinelone/lib/*.so.
 PROVIDES_EXCLUDE="libbpf.so.1 libelf.so.0"
+
+CONFIG_CHECK="
+	~BPF
+	~BPF_SYSCALL
+	~BPF_JIT
+	~DEBUG_INFO_BTF
+	~KPROBES
+	~KPROBE_EVENTS
+	~UPROBES
+	~UPROBE_EVENTS
+	~FTRACE
+	~FUNCTION_TRACER
+	~DYNAMIC_FTRACE
+	~FTRACE_SYSCALLS
+	~BPF_EVENTS
+	~BPF_LSM
+	~SECURITYFS
+"
+WARNING_BPF_SYSCALL="CONFIG_BPF_SYSCALL is needed for the agent to load eBPF programs."
+WARNING_DEBUG_INFO_BTF="CONFIG_DEBUG_INFO_BTF is needed for CO-RE eBPF on non-standard vendor kernels."
+WARNING_KPROBES="CONFIG_KPROBES is needed for SentinelOne kernel dynamic tracing."
+WARNING_FUNCTION_TRACER="CONFIG_FUNCTION_TRACER is required for available_filter_functions."
+WARNING_FTRACE_SYSCALLS="CONFIG_FTRACE_SYSCALLS is needed for monitoring syscall events (e.g. kill, exit)."
+WARNING_BPF_LSM="CONFIG_BPF_LSM is needed for SentinelOne anti-tamper security hooks."
+WARNING_SECURITYFS="CONFIG_SECURITYFS is needed for accessing LSM interfaces at /sys/kernel/security."
+
+pkg_setup() {
+	linux-info_pkg_setup
+	if linux_config_exists; then
+		local lsm
+		lsm=$(linux_chkconfig_string LSM)
+		if [[ -n ${lsm} && ${lsm} != *bpf* ]]; then
+			ewarn "CONFIG_LSM does not include 'bpf'. SentinelOne BPF LSM anti-tamper"
+			ewarn "hooks require 'bpf' in CONFIG_LSM or 'lsm=...,bpf' in kernel cmdline."
+		fi
+	fi
+}
 
 pkg_nofetch() {
 	einfo "Download ${A} from your SentinelOne management console"
