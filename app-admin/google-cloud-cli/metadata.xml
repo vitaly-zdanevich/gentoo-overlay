@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<name>Vitaly Zdanevich</name>
+		<email>zdanevich.vitaly@ya.ru</email>
+	</maintainer>
+	<longdescription lang="en">
+		Google Cloud CLI (gcloud) is a set of command-line tools for creating
+		and managing Google Cloud resources. It includes the gcloud, gsutil,
+		and bq command-line tools.
+	</longdescription>
+</pkgmetadata>
