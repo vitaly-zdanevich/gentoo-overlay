@@ -27,19 +27,24 @@ S="${WORKDIR}/dist-package"
 LICENSE="cursor"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
-IUSE="+trim-bottom-row"
+IUSE="+footer-spinner +trim-bottom-row"
 RESTRICT="bindist mirror strip"
 
 RDEPEND="
 	app-misc/ca-certificates
 	virtual/zlib
 "
-BDEPEND="trim-bottom-row? ( ${PYTHON_DEPS} )"
+BDEPEND="
+	footer-spinner? ( ${PYTHON_DEPS} )
+	trim-bottom-row? ( ${PYTHON_DEPS} )
+"
 
 QA_PREBUILT="*"
 
 pkg_setup() {
-	use trim-bottom-row && python-any-r1_pkg_setup
+	if use footer-spinner || use trim-bottom-row; then
+		python-any-r1_pkg_setup
+	fi
 }
 
 src_prepare() {
@@ -54,6 +59,10 @@ src_prepare() {
 	if use trim-bottom-row; then
 		"${EPYTHON}" "${FILESDIR}"/cursor-agent-trim-bottom-row.py index.js ||
 			ewarn "trim-bottom-row: renderer not found in this release; leaving it unpatched"
+	fi
+	if use footer-spinner; then
+		"${EPYTHON}" "${FILESDIR}"/cursor-agent-footer-spinner.py index.js ||
+			ewarn "footer-spinner: render loop not found in this release; leaving it unpatched"
 	fi
 }
 
