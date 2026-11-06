@@ -15,7 +15,7 @@ The initial package set was recovered from these pull requests:
 Install `app-eselect/eselect-repository`, then run:
 
 ```sh
-eselect repository add vitaly-zdanevich-overlay git https://github.com/vitaly-zdanevich/gentoo-overlay.git
+eselect repository enable vitaly-zdanevich-overlay
 emaint sync -r vitaly-zdanevich-overlay
 ```
 
