@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE pkgmetadata SYSTEM 'https://www.gentoo.org/dtd/metadata.dtd'>
+<pkgmetadata>
+	<maintainer type='person'>
+		<name>Vitaly Zdanevich</name>
+		<email>zdanevich.vitaly@ya.ru</email>
+	</maintainer>
+	<longdescription lang='en'>
+		Prebuilt kubectl credential plugin that authenticates to Google
+		Kubernetes Engine clusters with gcloud credentials. Required by
+		kubectl for GKE since Kubernetes 1.26.
+	</longdescription>
+	<upstream>
+		<remote-id type='github'>kubernetes/cloud-provider-gcp</remote-id>
+	</upstream>
+</pkgmetadata>
