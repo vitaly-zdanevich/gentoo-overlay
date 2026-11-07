@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE pkgmetadata SYSTEM 'https://www.gentoo.org/dtd/metadata.dtd'>
+<pkgmetadata>
+	<maintainer type='person'>
+		<email>zdanevich.vitaly@ya.ru</email>
+		<name>Vitaly Zdanevich</name>
+	</maintainer>
+	<longdescription lang='en'>
+		Prebuilt two-panel terminal user interface for Evernote,
+		embedding real Vim in the right panel with save-on-:w sync,
+		tag and notebook search aliases, and pure-ASCII TTY support.
+	</longdescription>
+	<upstream>
+		<remote-id type='github'>vitaly-zdanevich/evertui</remote-id>
+	</upstream>
+</pkgmetadata>

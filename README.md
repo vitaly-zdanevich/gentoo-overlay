@@ -46,6 +46,26 @@ Audio playback through mpv and image display in Kitty-compatible terminals
 remain optional. See the [Reeknote documentation](https://github.com/vitaly-zdanevich/reeknote#readme)
 for login and usage.
 
+## Evertui
+
+[`app-doc/evertui`](app-doc/evertui) builds the two-panel
+[Evertui](https://github.com/vitaly-zdanevich/evertui) Evernote terminal user
+interface from its tagged source and release vendor archive.
+
+[`app-doc/evertui-bin`](app-doc/evertui-bin) installs the official prebuilt
+amd64 or arm64 release without compiling Rust code. The binaries require glibc
+2.39 or newer and cannot be installed alongside [`app-doc/evertui`](app-doc/evertui).
+
+```sh
+emerge --ask app-doc/evertui
+```
+
+Or install the prebuilt release:
+
+```sh
+emerge --ask app-doc/evertui-bin
+```
+
 ## Youta
 
 [`media-sound/youta`](media-sound/youta) builds the low-resource
