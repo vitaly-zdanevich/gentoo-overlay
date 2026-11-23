@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zdanevich.vitaly@ya.ru</email>
+		<name>Vitaly Zdanevich</name>
+	</maintainer>
+	<use>
+		<flag name="settings">Install /usr/share/claude-code and managed settings that override ~/.claude. Off by default, so Claude reads the user home directory.</flag>
+	</use>
+	<longdescription>
+		Claude Code is an agentic coding tool that lives in your terminal.
+		This package drops the bottom rule of the prompt on every build.
+		With USE=settings it also installs spinner-to-status under
+		/usr/share/claude-code and pins the dark theme, the classic renderer,
+		high effort for Opus 5.5, the gopls language server, and WebFetch
+		for docs.cloud.google.com.
+	</longdescription>
+	<upstream>
+		<doc>https://code.claude.com/docs/en/overview</doc>
+		<remote-id type="github">anthropics/claude-code</remote-id>
+	</upstream>
+</pkgmetadata>

@@ -1,0 +1,1 @@
+{ "name": "spinner-to-status", "version": "0.3.0", "description": "Moves the spinner row and the turn-duration line into a compact label at the right of the prompt footer", "types": "./types/index.d.ts" }
