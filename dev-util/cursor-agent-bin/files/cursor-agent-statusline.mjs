@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// One-line Cursor CLI footer: session · model · MAX · context % · directory · branch* · Run Everything.
+// One-line Cursor CLI footer: session · model · context % · directory · branch* · Run Everything.
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -17,7 +17,6 @@ if (data.session_name) parts.push(data.session_name);
 
 let name = model.display_name ?? "";
 if (model.param_summary && !name.includes(model.param_summary)) name += ` ${model.param_summary}`;
-if (model.max_mode) name += " · MAX";
 parts.push(name);
 
 const pct = data.context_window?.used_percentage;
