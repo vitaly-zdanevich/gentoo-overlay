@@ -29,8 +29,11 @@ RDEPEND="
 	>=dev-python/arrow-1.0.0[${PYTHON_USEDEP}]
 	<dev-python/arrow-2[${PYTHON_USEDEP}]
 	>=dev-python/certifi-2025.1.31[${PYTHON_USEDEP}]
-	>=dev-python/click-8.3.3[${PYTHON_USEDEP}]
-	<dev-python/click-8.4.3[${PYTHON_USEDEP}]
+	# TODO: return to click<=8.4.2 when oci-cli allows Click 8.5, or Gentoo
+	# packages 8.4.2 again. Nothing in ::gentoo is <8.4.3.
+	# https://github.com/oracle/oci-cli/blob/v3.94.1/requirements.txt#L11
+	>=dev-python/click-8.5[${PYTHON_USEDEP}]
+	<dev-python/click-8.6[${PYTHON_USEDEP}]
 	>=dev-python/cryptography-3.2.1[${PYTHON_USEDEP}]
 	<dev-python/cryptography-51[${PYTHON_USEDEP}]
 	>=dev-python/jmespath-0.10.0[${PYTHON_USEDEP}]
