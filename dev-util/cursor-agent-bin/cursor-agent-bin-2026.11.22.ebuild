@@ -7,7 +7,7 @@ PYTHON_COMPAT=( python3_{12..15} )
 
 inherit pax-utils python-any-r1
 
-MY_HASH="86047df"
+MY_HASH="e9042b2"
 MY_PV="${PV}-${MY_HASH}"
 
 DESCRIPTION="Cursor Agent CLI - Autonomous terminal coding agent"
