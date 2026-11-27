@@ -1,0 +1,40 @@
+#!/sbin/openrc-run
+# Copyright 2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+description="Telegram RuTracker node worker"
+supervisor="supervise-daemon"
+command="/usr/bin/telegram-rutracker-vm-worker"
+command_user="telegram-rutracker-bot:telegram-rutracker-bot"
+directory="/var/lib/telegram-rutracker-bot"
+output_log="/var/log/telegram-rutracker-vm-worker.log"
+error_log="/var/log/telegram-rutracker-vm-worker.log"
+rc_ulimit="-n 65536"
+respawn_delay=5
+respawn_max=0
+
+depend() {
+	need net
+	use telegram-bot-api
+}
+
+start_pre() {
+	if [ ! -r /etc/telegram-rutracker-bot.env ]; then
+		eerror "Missing /etc/telegram-rutracker-bot.env"
+		return 1
+	fi
+	set -a
+	# shellcheck disable=SC1091
+	. /etc/telegram-rutracker-bot.env
+	set +a
+	if [ -z "${TELEGRAM_BOT_TOKEN}" ] || [ -z "${VM_WORKER_SECRET}" ]; then
+		eerror "Set TELEGRAM_BOT_TOKEN and VM_WORKER_SECRET in /etc/telegram-rutracker-bot.env"
+		return 1
+	fi
+	checkpath -d -m 0750 -o telegram-rutracker-bot:telegram-rutracker-bot \
+		/var/lib/telegram-rutracker-bot \
+		/var/lib/telegram-rutracker-bot/tmp \
+		/var/lib/telegram-rutracker-bot/image-cache \
+		/var/lib/telegram-rutracker-bot/catalog
+	checkpath -f -m 0640 -o telegram-rutracker-bot:telegram-rutracker-bot "${output_log}"
+}

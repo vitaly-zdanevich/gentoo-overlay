@@ -1,0 +1,18 @@
+[Unit]
+Description=Telegram RuTracker node worker
+After=network-online.target telegram-bot-api.service
+Wants=network-online.target telegram-bot-api.service
+Conflicts=telegram-rutracker-poller.service
+
+[Service]
+User=telegram-rutracker-bot
+Group=telegram-rutracker-bot
+WorkingDirectory=/var/lib/telegram-rutracker-bot
+EnvironmentFile=/etc/telegram-rutracker-bot.env
+ExecStart=/usr/bin/telegram-rutracker-vm-worker
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

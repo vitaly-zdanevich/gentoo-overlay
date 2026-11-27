@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>zdanevich.vitaly@ya.ru</email>
+		<name>Vitaly Zdanevich</name>
+	</maintainer>
+	<use>
+		<flag name="local-bot-api">Depend on net-im/telegram-bot-api for local 2 GB uploads</flag>
+	</use>
+	<upstream>
+		<remote-id type="github">vitaly-zdanevich/bot_telegram_rutracker</remote-id>
+	</upstream>
+</pkgmetadata>
