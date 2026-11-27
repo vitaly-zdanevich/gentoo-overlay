@@ -95,6 +95,23 @@ preserve the original executable. This affects both the terminal and optional
 GUI executable; published downloads and their checksums remain unchanged.
 See Gentoo's [debugging and stripping documentation](https://wiki.gentoo.org/wiki/Project:Quality_Assurance/Backtraces#Stripping).
 
+## Telegram Bot API & Telegram RuTracker Bot
+
+[`net-im/telegram-bot-api`](net-im/telegram-bot-api) builds TDLib's local
+[Telegram Bot API server](https://github.com/tdlib/telegram-bot-api) from
+source (supporting 2 GB local uploads) and installs OpenRC and systemd service
+units.
+
+[`net-im/telegram-rutracker-bot`](net-im/telegram-rutracker-bot) builds the
+node binaries (`telegram-rutracker-vm-worker`, `telegram-rutracker-poller`, and
+`rutracker-catalog-updater`) for the unofficial
+[Telegram RuTracker Bot](https://github.com/vitaly-zdanevich/bot_telegram_rutracker),
+pulling in `net-im/telegram-bot-api` by default (`USE="local-bot-api"`).
+
+```sh
+emerge --ask net-im/telegram-rutracker-bot
+```
+
 ## Provenance
 
 The initial files were copied from immutable Git commits:
