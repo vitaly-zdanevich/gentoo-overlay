@@ -1,0 +1,16 @@
+[Unit]
+Description=Local Telegram Bot API server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=telegram-bot-api
+Group=telegram-bot-api
+EnvironmentFile=/etc/conf.d/telegram-bot-api
+ExecStart=/usr/bin/telegram-bot-api --local --http-ip-address=127.0.0.1 --http-port=8081 --dir=/var/lib/telegram-bot-api --temp-dir=/var/lib/telegram-bot-api/tmp
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,28 @@
+#!/sbin/openrc-run
+# Copyright 2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+description="Local Telegram Bot API server"
+supervisor="supervise-daemon"
+command="/usr/bin/telegram-bot-api"
+command_args="${TELEGRAM_BOT_API_OPTS:---local --http-ip-address=127.0.0.1 --http-port=8081 --dir=/var/lib/telegram-bot-api --temp-dir=/var/lib/telegram-bot-api/tmp}"
+command_user="telegram-bot-api:telegram-bot-api"
+output_log="/var/log/telegram-bot-api.log"
+error_log="/var/log/telegram-bot-api.log"
+rc_ulimit="-n 65536"
+respawn_delay=5
+respawn_max=0
+
+depend() {
+	need net
+}
+
+start_pre() {
+	if [ -z "${TELEGRAM_API_ID}" ] || [ -z "${TELEGRAM_API_HASH}" ]; then
+		eerror "Set TELEGRAM_API_ID and TELEGRAM_API_HASH in /etc/conf.d/${RC_SVCNAME}"
+		return 1
+	fi
+	export TELEGRAM_API_ID TELEGRAM_API_HASH
+	checkpath -d -m 0750 -o telegram-bot-api:telegram-bot-api /var/lib/telegram-bot-api /var/lib/telegram-bot-api/tmp
+	checkpath -f -m 0640 -o telegram-bot-api:telegram-bot-api "${output_log}"
+}

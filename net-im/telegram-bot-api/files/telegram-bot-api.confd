@@ -1,0 +1,9 @@
+# Configuration for net-im/telegram-bot-api.
+# Obtain TELEGRAM_API_ID and TELEGRAM_API_HASH from https://my.telegram.org.
+# These values are read by telegram-bot-api from the process environment so
+# secrets are not exposed on the command line.
+
+TELEGRAM_API_ID=""
+TELEGRAM_API_HASH=""
+
+TELEGRAM_BOT_API_OPTS="--local --http-ip-address=127.0.0.1 --http-port=8081 --dir=/var/lib/telegram-bot-api --temp-dir=/var/lib/telegram-bot-api/tmp"
